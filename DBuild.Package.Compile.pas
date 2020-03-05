@@ -13,6 +13,7 @@ type
     class var FDelphiInstallDir: string;
     class var FArquivo: TStringList;
     class function CreateDefaultBatFile(const APackage: TPackage): string;
+    class procedure Run(const APackage: TPackage; const AParams: string);
   private
     class procedure Initialize;
     class procedure ReleaseIstance;
@@ -30,12 +31,12 @@ Uses
   DateUtils,
   IOUtils,
   ShellAPI,
-  DBuild.Utils;
+  DBuild.Utils, DBuild.Output;
 
 { TPackageCompile }
 
 // https://stackoverflow.com/questions/9119999/getting-output-from-a-shell-dos-app-into-a-delphi-app
-procedure Run(const AParams: string);
+class procedure TPackageCompile.Run(const APackage: TPackage; const AParams: string);
 const
   READ_BUFFER_SIZE = 2400;
 var
@@ -74,7 +75,7 @@ begin
         AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
         Application.ProcessMessages;
 
-        if SecondsBetween(Now, StartExe) > 10 then
+        if SecondsBetween(Now, StartExe) > 12 then
           Break;
       until (AppRunning <> WAIT_TIMEOUT);
 
@@ -83,7 +84,7 @@ begin
         ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
         Buffer[BytesRead] := #0;
         OemToAnsi(Buffer, Buffer);
-        TConsole.Write(String(Buffer));
+        TDBuildOutput.Exec(APackage, String(Buffer));
       until (BytesRead < READ_BUFFER_SIZE);
     end;
     FreeMem(Buffer);
@@ -102,8 +103,10 @@ begin
     Initialize;
   try
     Params := CreateDefaultBatFile(APackage);
-    Run(Params);
+    Run(APackage, Params);
     TFile.Delete(Params);
+    // if TDBuildConfig.GetInstance.Log.Level = TLogLevel.OutputFile then
+    // TDBuildOutput.Exec(APackage);
   except
     on E: Exception do
       TConsole.Error(E.Message);
@@ -112,19 +115,26 @@ end;
 
 class function TPackageCompile.CreateDefaultBatFile(const APackage: TPackage): string;
 const
-  COMMAND = '%s /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" /v:Quiet /flp:logfile=logs/%s.log "%s"';
-  /// p:DCC_Define="%s"
+  COMMAND = '%s /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
+
+  COMMAND_LOG = '%s /flp:logfile=logs/%s.log ';
 var
-  msExec: string;
+  msExec, msLog: string;
 begin
   FArquivo.Clear;
   FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
   FArquivo.Add('');
 
+  msLog := '';
+  if TDBuildConfig.GetInstance.Log.Level <> TLogLevel.OutputFile then
+    msLog := Format(' /v:%s', [TDBuildConfig.GetInstance.Log.LevelStr]);
+
+  msLog := Format(COMMAND_LOG, [msLog, APackage.Name]);
+
   msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.MSBuild, TDBuildConfig.GetInstance.Compiler.PlataformToStr,
     TDBuildConfig.GetInstance.Compiler.ActionToStr, TDBuildConfig.GetInstance.Compiler.Config,
     TDBuildConfig.GetInstance.Compiler.BplOutput, TDBuildConfig.GetInstance.Compiler.DcuOutput,
-    TDBuildConfig.GetInstance.Compiler.DcpOutput, APackage.Name, APackage.Path]);
+    TDBuildConfig.GetInstance.Compiler.DcpOutput, msLog, APackage.Path]);
 
   FArquivo.Add(msExec);
 
@@ -148,6 +158,7 @@ begin
     Reg.Free;
   end;
 
+  TDirectory.CreateDirectory(GetRootDir + 'Logs');
   FArquivo := TStringList.Create;
 end;
 

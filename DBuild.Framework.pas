@@ -66,10 +66,11 @@ begin
 
     for Pack in TDBuildConfig.GetInstance.Packages do
     begin
-      if Pack.Dependency and not TDBuildParams.CompileDependecies then
-        Continue;
-
       TPackageCompile.Exec(Pack);
+      if TDBuildConfig.GetInstance.Log.Level = OutputFile then
+      begin
+
+      end;
       if Pack.Installed then
         TPackageInstall.RegisterBPL(Pack);
     end;

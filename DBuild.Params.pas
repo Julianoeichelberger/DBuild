@@ -8,7 +8,6 @@ uses
 
 type
   TParamsValue = Record
-    Dependencies: Boolean;
     LibraryPath: Boolean;
     ConfigPath: string;
   End;
@@ -25,7 +24,6 @@ type
   private
     class procedure Initialize;
   public
-    class function CompileDependecies: Boolean;
     class function ResetLibraryPath: Boolean;
     class function ConfigFileName: string;
   end;
@@ -35,7 +33,7 @@ implementation
 { TDBuildParams }
 
 uses
-  DBuild.Banner, 
+  DBuild.Banner,
   DBuild.Utils;
 
 class function TDBuildParams.ConfigFileName: string;
@@ -64,17 +62,11 @@ class procedure TDBuildParams.Initialize;
 var
   IndexCfg: Integer;
 begin
-  FParams.ConfigPath := GetRootDir + 'config.json';;
-  FParams.Dependencies := FoundParam('-d').Index > 0;
+  FParams.ConfigPath := GetRootDir + 'DBuild.json';;
   FParams.LibraryPath := FoundParam('-lp').Index > 0;
   IndexCfg := FoundParam('-cfg').Index + 1;
   if Pred(IndexCfg) > 0 then
     FParams.ConfigPath := ParamStr(IndexCfg);
-end;
-
-class function TDBuildParams.CompileDependecies: Boolean;
-begin
-  Result := FParams.Dependencies;
 end;
 
 class function TDBuildParams.ResetLibraryPath: Boolean;

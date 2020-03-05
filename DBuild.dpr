@@ -14,12 +14,16 @@ uses
   DBuild.Package.Compile in 'DBuild.Package.Compile.pas',
   DBuild.LibraryPath in 'DBuild.LibraryPath.pas',
   DBuild.Framework in 'DBuild.Framework.pas',
-  DBuild.Banner in 'DBuild.Banner.pas';
+  DBuild.Banner in 'DBuild.Banner.pas',
+  DBuild.Output in 'DBuild.Output.pas';
 
 begin
   try
     TBanner.Print;
     TDBuild.Execute;
+    TDBuildOutput.Finalize;
+
+    Readln;
   except
     on E: Exception do
       TConsole.WriteFmt('%s: %s', [E.ClassName, E.Message]);

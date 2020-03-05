@@ -113,6 +113,7 @@
         <DCCReference Include="DBuild.LibraryPath.pas"/>
         <DCCReference Include="DBuild.Framework.pas"/>
         <DCCReference Include="DBuild.Banner.pas"/>
+        <DCCReference Include="DBuild.Output.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -150,7 +151,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\DBuild.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="DBuild.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DBuild.exe</RemoteName>
                         <Overwrite>true</Overwrite>

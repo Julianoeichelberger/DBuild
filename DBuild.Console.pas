@@ -3,13 +3,16 @@ unit DBuild.Console;
 interface
 
 type
+  TConsoleColor = (Normal, Red, Blue, Green);
+
   TConsole = Record
   public
-    class procedure Output(const AText: string); static;
+    class procedure Output(const AText: string; const AColor: TConsoleColor = Normal); static;
     class procedure Error(const AText: string); static;
     class procedure ErrorFmt(const AText: string; AParams: Array of const); static;
     class procedure Write(const AText: string); static;
     class procedure WriteFmt(const AText: string; AParams: Array of const); static;
+    class procedure Line; static;
   end;
 
 implementation
@@ -23,17 +26,8 @@ Uses
 { TConsole }
 
 class procedure TConsole.Error(const AText: string);
-var
-  ConOut: THandle;
-  BufInfo: TConsoleScreenBufferInfo;
 begin
-  ConOut := GetStdHandle(STD_OUTPUT_HANDLE);
-  GetConsoleScreenBufferInfo(ConOut, BufInfo);
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY or FOREGROUND_RED);
-
-  System.Writeln(AText);
-
-  SetConsoleTextAttribute(ConOut, BufInfo.wAttributes);
+  TConsole.Output(AText, Red);
 
   raise EDBuildException.Create(AText);
 end;
@@ -43,9 +37,38 @@ begin
   Error(Format(AText, AParams));
 end;
 
-class procedure TConsole.Output(const AText: string);
+class procedure TConsole.Line;
 begin
+  TConsole.Output
+    ('________________________________________________________________________________________________________________________');
+  TConsole.Output('');
+end;
 
+class procedure TConsole.Output(const AText: string; const AColor: TConsoleColor);
+var
+  ConOut: THandle;
+  BufInfo: TConsoleScreenBufferInfo;
+begin
+  if AColor = Normal then
+  begin
+    System.Writeln(AText);
+    exit;
+  end;
+
+  ConOut := GetStdHandle(STD_OUTPUT_HANDLE);
+  GetConsoleScreenBufferInfo(ConOut, BufInfo);
+  case AColor of
+    Red:
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY or FOREGROUND_RED);
+    Blue:
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY or FOREGROUND_BLUE);
+    Green:
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY or FOREGROUND_GREEN);
+  end;
+
+  System.Writeln(AText);
+
+  SetConsoleTextAttribute(ConOut, BufInfo.wAttributes);
 end;
 
 class procedure TConsole.Write(const AText: string);

@@ -37,15 +37,16 @@ type
     property Version: string read FVersion write FVersion;
   end;
 
+  TLogLevel = (OutputFile, Quiet, Minimal, Normal, Detailed, Diagnostic);
+
   TLog = class
-  strict private
-  type
-    TLogLevel = (Quiet, Minimal, Normal, Detailed, Diagnostic);
   private
     FOutputFile: Boolean;
     FLevel: TLogLevel;
   public
     constructor Create;
+
+    function LevelStr: string;
 
     property OutputFile: Boolean read FOutputFile write FOutputFile;
     property Level: TLogLevel read FLevel write FLevel;
@@ -87,18 +88,13 @@ type
       Build: Word;
     End;
   private
-    FDescription: string;
     FPath: string;
     FInstalled: Boolean;
-    FDependency: Boolean;
     FVersion: TVersion;
     function GetPath: string;
-    function GetDescription: string;
   public
     function Name: string;
 
-    property Description: string read GetDescription write FDescription;
-    property Dependency: Boolean read FDependency write FDependency;
     property Installed: Boolean read FInstalled write FInstalled;
     property Path: string read GetPath write FPath;
     property Version: TVersion read FVersion write FVersion;
@@ -139,6 +135,7 @@ implementation
 Uses
   Generics.Collections,
   IOUtils,
+  Rtti,
   SysUtils,
   Classes,
   Rest.Json,
@@ -184,22 +181,12 @@ end;
 
 function TCompiler.ActionToStr: string;
 begin
-  case FAction of
-    Build:
-      Result := 'Build';
-    Compile:
-      Result := 'Compile';
-    Clean:
-      Result := 'Clean';
-  end;
+  Result := TRttiEnumerationType.GetName(FAction);
 end;
 
 function TCompiler.PlataformToStr: string;
 begin
-  if FPlataform = Win64 then
-    Result := 'Win64'
-  else
-    Result := 'Win32';
+  Result := TRttiEnumerationType.GetName(FPlataform);
 end;
 
 { TLog }
@@ -207,7 +194,12 @@ end;
 constructor TLog.Create;
 begin
   FOutputFile := True;
-  FLevel := Normal;
+  FLevel := TLogLevel.OutputFile;
+end;
+
+function TLog.LevelStr: string;
+begin
+  Result := TRttiEnumerationType.GetName(FLevel);
 end;
 
 { TVariable }
@@ -233,13 +225,6 @@ begin
 end;
 
 { TPackage }
-
-function TPackage.GetDescription: string;
-begin
-  Result := FDescription;
-  if Result.IsEmpty then
-    Result := Name;
-end;
 
 function TPackage.GetPath: string;
 begin

@@ -64,7 +64,7 @@ begin
     try
       BplName := Format('%s%s.bpl', [IncludeTrailingPathDelimiter(TDBuildConfig.GetInstance.Compiler.BplOutput), APackage.Name]);
 
-      FReg.WriteString(BplName, APackage.Description);
+      FReg.WriteString(BplName, APackage.Name);
     except
       On E: Exception do
         TConsole.ErrorFmt('Error on write %s in windows registry', [BplName]);
