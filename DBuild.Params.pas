@@ -9,6 +9,7 @@ uses
 type
   TParamsValue = Record
     LibraryPath: Boolean;
+    Clean: Boolean;
     ConfigPath: string;
   End;
 
@@ -25,7 +26,9 @@ type
     class procedure Initialize;
   public
     class function ResetLibraryPath: Boolean;
+    class function IsCI: Boolean;
     class function ConfigFileName: string;
+    class function CleanAll: Boolean;
   end;
 
 implementation
@@ -35,6 +38,11 @@ implementation
 uses
   DBuild.Banner,
   DBuild.Utils;
+
+class function TDBuildParams.CleanAll: Boolean;
+begin
+  Result := FParams.Clean;
+end;
 
 class function TDBuildParams.ConfigFileName: string;
 begin
@@ -64,9 +72,15 @@ var
 begin
   FParams.ConfigPath := GetRootDir + 'DBuild.json';;
   FParams.LibraryPath := FoundParam('-lp').Index > 0;
+  FParams.Clean := FoundParam('-c').Index > 0;
   IndexCfg := FoundParam('-cfg').Index + 1;
   if Pred(IndexCfg) > 0 then
     FParams.ConfigPath := ParamStr(IndexCfg);
+end;
+
+class function TDBuildParams.IsCI: Boolean;
+begin
+  Result := FoundParam('-ci').Index > 0;
 end;
 
 class function TDBuildParams.ResetLibraryPath: Boolean;

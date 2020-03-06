@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  Generics.Collections,
   DBuild.Config;
 
 type
@@ -12,11 +13,16 @@ type
     class var FWarningsCount: Integer;
     class var FErrorsCount: Integer;
     class var FTotalTime: TDateTime;
-  public
+    class var FListApp: TDictionary<TPackage, Boolean>;
     class procedure Initialize;
     class procedure Finalize;
-    // class procedure Exec(const App: TPackage);
-    class procedure Exec(const App: TPackage; AStr: string);
+  public
+    class procedure ShowResult;
+
+    class procedure Open(const App: TPackage);
+    class procedure Close(const App: TPackage);
+
+    class procedure Line(const App: TPackage; AStr: string);
   end;
 
 implementation
@@ -29,16 +35,23 @@ uses
   IOUtils,
   RegularExpressions,
   DBuild.Utils,
-  DBuild.Console;
+  DBuild.Console,
+  DBuild.Params;
+
+class procedure TDBuildOutput.Finalize;
+begin
+  FListApp.Free;
+end;
 
 class procedure TDBuildOutput.Initialize;
 begin
+  FListApp := TDictionary<TPackage, Boolean>.Create;
   FTotalTime := Now;
   FErrorsCount := 0;
   FWarningsCount := 0;
 end;
 
-class procedure TDBuildOutput.Exec(const App: TPackage; AStr: string);
+class procedure TDBuildOutput.Line(const App: TPackage; AStr: string);
 
   procedure ExtractCounters;
   var
@@ -70,44 +83,76 @@ begin
   AStr := AStr.ToLower;
   if AStr.Contains('compilação com êxito.') then
   begin
-    TConsole.Output(Format('%s successfully compiled', [App.Name]), Green);
+    TConsole.Output('SUCCESS', Green);
     TConsole.Output('');
-    TConsole.Output(AStr);
+    if AStr.Length < 1000 then
+      TConsole.Output(AStr)
+    else
+      TConsole.Output(Copy(AStr, AStr.Length - 1000, AStr.Length - 1));
     ExtractCounters;
-    TConsole.Line;
+    FListApp.Items[App] := True;
   end
-  else if AStr.Contains('compilação com erro.') then
+  else if AStr.Contains('falha da compilação.') then
   begin
-    TConsole.Output(Format('%s compiled with errors', [App.Name]), Red);
+    TConsole.Output('FAILED', Red);
     TConsole.Output('');
+    if AStr.Length < 1000 then
+      TConsole.Output(AStr, Red)
+    else
+      TConsole.Output(Copy(AStr, AStr.Length - 1000, AStr.Length - 1), Red);
+
     TConsole.Output(AStr, Red);
     ExtractCounters;
+    FListApp.Items[App] := True;
   end;
 end;
 
-class procedure TDBuildOutput.Finalize;
-var
-  Col: TConsoleColor;
+class procedure TDBuildOutput.Open(const App: TPackage);
 begin
-  Col := Green;
-  if FErrorsCount > 0 then
-    Col := Red;
+  TConsole.Output(Format('Starting %s. [%s]', [TDBuildConfig.GetInstance.Compiler.ActionToStr, App.Name]));
+  TConsole.Output('');
+  FListApp.Add(App, False);
+end;
 
+class procedure TDBuildOutput.Close(const App: TPackage);
+var
+  LFile: TStringList;
+begin
+  if not FListApp.Items[App] then
+  begin
+    LFile := TStringList.Create;
+    try
+      LFile.LoadFromFile(GetRootDir + 'logs\' + App.Name + '.log');
+      TDBuildOutput.Line(App, LFile.Text);
+      if not FListApp.Items[App] then
+        TConsole.Output(Format('it is not possible to identify the result of the action [%s]', [App.Name]), Red);
+    finally
+      LFile.Free;
+    end;
+  end;
+  TConsole.Line;
+end;
+
+class procedure TDBuildOutput.ShowResult;
+begin
   FTotalTime := TimeOf(Now - FTotalTime);
 
-  TConsole.Output
-    ('**************************************************** DBUILD RESULT ****************************************************',
-    Col);
-  TConsole.Output(Format('  %d hints/warnings found', [FWarningsCount]), Col);
-  TConsole.Output(Format('  %d erro(s) found', [FErrorsCount]), Col);
-  TConsole.Output(Format('  %s duration', [FormatDateTime('hh:mm:ss', FTotalTime)]), Col);
-  TConsole.Output
-    ('***********************************************************************************************************************',
-    Col);
+  TConsole.PrintResult(FWarningsCount, FErrorsCount, FTotalTime);
+
+  if not TDBuildParams.IsCI then
+  begin
+    TConsole.Write('');
+    TConsole.Write('Press ENTER to exit...');
+    Readln;
+  end;
 end;
 
 initialization
 
 TDBuildOutput.Initialize;
+
+finalization
+
+TDBuildOutput.Finalize;
 
 end.

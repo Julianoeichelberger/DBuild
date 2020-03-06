@@ -65,6 +65,8 @@ begin
       BplName := Format('%s%s.bpl', [IncludeTrailingPathDelimiter(TDBuildConfig.GetInstance.Compiler.BplOutput), APackage.Name]);
 
       FReg.WriteString(BplName, APackage.Name);
+      if FReg.ReadString(BplName).Contains('not found') then
+        TConsole.ErrorFmt('Install: bpl %s not found', [BplName]);
     except
       On E: Exception do
         TConsole.ErrorFmt('Error on write %s in windows registry', [BplName]);

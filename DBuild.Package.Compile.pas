@@ -52,6 +52,9 @@ begin
   Security.bInheritHandle := True;
   Security.lpSecurityDescriptor := nil;
 
+  StartExe := Now;
+  TDBuildOutput.Open(APackage);
+
   if CreatePipe(readableEndOfPipe, writeableEndOfPipe, @Security, 0) then
   begin
     Buffer := AllocMem(READ_BUFFER_SIZE + 1);
@@ -68,7 +71,6 @@ begin
 
     ProcessInfo := Default (TProcessInformation);
 
-    StartExe := Now;
     if CreateProcess(nil, PChar(AParams), nil, nil, True, NORMAL_PRIORITY_CLASS, nil, nil, start, ProcessInfo) then
     begin
       repeat
@@ -84,7 +86,7 @@ begin
         ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
         Buffer[BytesRead] := #0;
         OemToAnsi(Buffer, Buffer);
-        TDBuildOutput.Exec(APackage, String(Buffer));
+        TDBuildOutput.Line(APackage, String(Buffer));
       until (BytesRead < READ_BUFFER_SIZE);
     end;
     FreeMem(Buffer);
@@ -92,6 +94,7 @@ begin
     CloseHandle(ProcessInfo.hThread);
     CloseHandle(readableEndOfPipe);
     CloseHandle(writeableEndOfPipe);
+    TDBuildOutput.Close(APackage);
   end;
 end;
 
@@ -105,8 +108,6 @@ begin
     Params := CreateDefaultBatFile(APackage);
     Run(APackage, Params);
     TFile.Delete(Params);
-    // if TDBuildConfig.GetInstance.Log.Level = TLogLevel.OutputFile then
-    // TDBuildOutput.Exec(APackage);
   except
     on E: Exception do
       TConsole.Error(E.Message);
@@ -125,11 +126,11 @@ begin
   FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
   FArquivo.Add('');
 
-  msLog := '';
-  if TDBuildConfig.GetInstance.Log.Level <> TLogLevel.OutputFile then
-    msLog := Format(' /v:%s', [TDBuildConfig.GetInstance.Log.LevelStr]);
+  // msLog := '';
+  // if TDBuildConfig.GetInstance.Log.Level <> TLogLevel.OutputFile then
+  // msLog := Format(' /v:%s', [TDBuildConfig.GetInstance.Log.LevelStr]);
 
-  msLog := Format(COMMAND_LOG, [msLog, APackage.Name]);
+  msLog := Format(COMMAND_LOG, [' /v:Minimal', APackage.Name]);
 
   msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.MSBuild, TDBuildConfig.GetInstance.Compiler.PlataformToStr,
     TDBuildConfig.GetInstance.Compiler.ActionToStr, TDBuildConfig.GetInstance.Compiler.Config,

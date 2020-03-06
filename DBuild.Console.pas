@@ -13,6 +13,8 @@ type
     class procedure Write(const AText: string); static;
     class procedure WriteFmt(const AText: string; AParams: Array of const); static;
     class procedure Line; static;
+    class procedure Banner; static;
+    class procedure PrintResult(const AWarn, AErrors: Integer; ATime: TDateTime); static;
   end;
 
 implementation
@@ -29,7 +31,7 @@ class procedure TConsole.Error(const AText: string);
 begin
   TConsole.Output(AText, Red);
 
-  raise EDBuildException.Create(AText);
+ // raise EDBuildException.Create(AText);
 end;
 
 class procedure TConsole.ErrorFmt(const AText: string; AParams: array of const);
@@ -39,8 +41,7 @@ end;
 
 class procedure TConsole.Line;
 begin
-  TConsole.Output
-    ('________________________________________________________________________________________________________________________');
+  TConsole.Output('**********************************************************************');
   TConsole.Output('');
 end;
 
@@ -79,6 +80,34 @@ end;
 class procedure TConsole.WriteFmt(const AText: string; AParams: array of const);
 begin
   System.Writeln(Format(AText, AParams));
+end;
+
+class procedure TConsole.Banner;
+begin
+  TConsole.Write('**********************************************************************');
+  TConsole.Write('*        DBuild - (c) 2020 - Juliano Eichelberger                    *');
+  TConsole.Write('*                                                                    *');
+  TConsole.Write('*        License - http://www.apache.org/licenses/LICENSE-2.0        *');
+  TConsole.Write('**********************************************************************');
+end;
+
+class procedure TConsole.PrintResult(const AWarn, AErrors: Integer; ATime: TDateTime);
+var
+  Col: TConsoleColor;
+begin
+  Col := Green;
+  if AErrors > 0 then
+    Col := Red;
+
+  TConsole.Output('**********************************************************************', Col);
+  TConsole.Output('*    DBuild output result                                            *', Col);
+  TConsole.Output('*                                                                    *', Col);
+  TConsole.Output(Format('*    %d hints/warnings found                                          *', [AWarn]), Col);
+  TConsole.Output(Format('*    %d erro(s) found                                                 *', [AErrors]), Col);
+  TConsole.Output(Format('*    %s duration                                               *',
+    [FormatDateTime('hh:mm:ss', ATime)]), Col);
+  TConsole.Output('*                                                                    *', Col);
+  TConsole.Output('**********************************************************************', Col);
 end;
 
 end.

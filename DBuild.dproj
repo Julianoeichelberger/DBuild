@@ -90,7 +90,7 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>(None)</Manifest_File>
-        <Debugger_RunParams>-lp -d</Debugger_RunParams>
+        <Debugger_RunParams>-lp -cfg &quot;C:\zs-project\trunk\bin\Win32\DBuild_Dependencies.json&quot;</Debugger_RunParams>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
     </PropertyGroup>
@@ -112,7 +112,6 @@
         <DCCReference Include="DBuild.Package.Compile.pas"/>
         <DCCReference Include="DBuild.LibraryPath.pas"/>
         <DCCReference Include="DBuild.Framework.pas"/>
-        <DCCReference Include="DBuild.Banner.pas"/>
         <DCCReference Include="DBuild.Output.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
