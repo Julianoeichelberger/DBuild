@@ -109,7 +109,8 @@ end;
 
 class procedure TDBuildOutput.Open(const App: TPackage);
 begin
-  TConsole.Output(Format('Starting %s. [%s]', [TDBuildConfig.GetInstance.Compiler.ActionToStr, App.Name]));
+  TConsole.Output(Format('%s = Starting %s. [%s]', [TDBuildConfig.GetInstance.Compiler.PlataformToStr,
+    TDBuildConfig.GetInstance.Compiler.ActionToStr, App.Name]));
   TConsole.Output('');
   FListApp.Add(App, False);
 end;
@@ -117,15 +118,22 @@ end;
 class procedure TDBuildOutput.Close(const App: TPackage);
 var
   LFile: TStringList;
+  LogFile: string;
 begin
   if not FListApp.Items[App] then
   begin
     LFile := TStringList.Create;
     try
-      LFile.LoadFromFile(GetRootDir + 'logs\' + App.Name + '.log');
-      TDBuildOutput.Line(App, LFile.Text);
-      if not FListApp.Items[App] then
-        TConsole.Output(Format('it is not possible to identify the result of the action [%s]', [App.Name]), Red);
+      LogFile := GetRootDir + 'logs\' + App.Name + '.log';
+      if TFile.Exists(LogFile) then
+      begin
+        LFile.LoadFromFile(LogFile);
+        TDBuildOutput.Line(App, LFile.Text);
+        if not FListApp.Items[App] then
+          TConsole.Output(Format('it is not possible to identify the result of the action [%s]', [App.Name]), Red);
+      end
+      else
+        TConsole.Output(Format('Log file [%s] not found', [LogFile]), Red);
     finally
       LFile.Free;
     end;

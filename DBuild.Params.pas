@@ -36,7 +36,6 @@ implementation
 { TDBuildParams }
 
 uses
-  DBuild.Banner,
   DBuild.Utils;
 
 class function TDBuildParams.CleanAll: Boolean;

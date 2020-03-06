@@ -54,46 +54,50 @@ begin
 
   StartExe := Now;
   TDBuildOutput.Open(APackage);
-
-  if CreatePipe(readableEndOfPipe, writeableEndOfPipe, @Security, 0) then
-  begin
-    Buffer := AllocMem(READ_BUFFER_SIZE + 1);
-    FillChar(start, SizeOf(start), #0);
-    start.cb := SizeOf(start);
-
-    start.dwFlags := start.dwFlags or STARTF_USESTDHANDLES;
-    start.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
-
-    start.hStdOutput := writeableEndOfPipe;
-    start.hStdError := writeableEndOfPipe;
-    start.dwFlags := start.dwFlags + STARTF_USESHOWWINDOW;
-    start.wShowWindow := SW_HIDE;
-
-    ProcessInfo := Default (TProcessInformation);
-
-    if CreateProcess(nil, PChar(AParams), nil, nil, True, NORMAL_PRIORITY_CLASS, nil, nil, start, ProcessInfo) then
+  try
+    if CreatePipe(readableEndOfPipe, writeableEndOfPipe, @Security, 0) then
     begin
-      repeat
-        AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
-        Application.ProcessMessages;
+      Buffer := AllocMem(READ_BUFFER_SIZE + 1);
+      FillChar(start, SizeOf(start), #0);
+      start.cb := SizeOf(start);
 
-        if SecondsBetween(Now, StartExe) > 12 then
-          Break;
-      until (AppRunning <> WAIT_TIMEOUT);
+      start.dwFlags := start.dwFlags or STARTF_USESTDHANDLES;
+      start.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
 
-      repeat
-        BytesRead := 0;
-        ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
-        Buffer[BytesRead] := #0;
-        OemToAnsi(Buffer, Buffer);
-        TDBuildOutput.Line(APackage, String(Buffer));
-      until (BytesRead < READ_BUFFER_SIZE);
+      start.hStdOutput := writeableEndOfPipe;
+      start.hStdError := writeableEndOfPipe;
+      start.dwFlags := start.dwFlags + STARTF_USESHOWWINDOW;
+      start.wShowWindow := SW_HIDE;
+
+      ProcessInfo := Default (TProcessInformation);
+
+      if CreateProcess(nil, PChar(AParams), nil, nil, True, NORMAL_PRIORITY_CLASS, nil, nil, start, ProcessInfo) then
+      begin
+        repeat
+          AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
+          Application.ProcessMessages;
+
+          if SecondsBetween(Now, StartExe) > 12 then
+            Break;
+        until (AppRunning <> WAIT_TIMEOUT);
+
+        repeat
+          BytesRead := 0;
+          ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
+          Buffer[BytesRead] := #0;
+          OemToAnsi(Buffer, Buffer);
+          TDBuildOutput.Line(APackage, String(Buffer));
+        until (BytesRead < READ_BUFFER_SIZE);
+      end
+      else
+        TConsole.ErrorFmt('Can not create process to file %s', [AParams]);
+      FreeMem(Buffer);
+      CloseHandle(ProcessInfo.hProcess);
+      CloseHandle(ProcessInfo.hThread);
+      CloseHandle(readableEndOfPipe);
+      CloseHandle(writeableEndOfPipe);
     end;
-    FreeMem(Buffer);
-    CloseHandle(ProcessInfo.hProcess);
-    CloseHandle(ProcessInfo.hThread);
-    CloseHandle(readableEndOfPipe);
-    CloseHandle(writeableEndOfPipe);
+  finally
     TDBuildOutput.Close(APackage);
   end;
 end;
@@ -116,7 +120,7 @@ end;
 
 class function TPackageCompile.CreateDefaultBatFile(const APackage: TPackage): string;
 const
-  COMMAND = '%s /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
+  COMMAND = 'MSBuild.exe /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
 
   COMMAND_LOG = '%s /flp:logfile=logs/%s.log ';
 var
@@ -125,6 +129,7 @@ begin
   FArquivo.Clear;
   FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
   FArquivo.Add('');
+  FArquivo.Add(Format('cd "%s"', [TPath.GetDirectoryName(TDBuildConfig.GetInstance.Compiler.MSBuild)]));
 
   // msLog := '';
   // if TDBuildConfig.GetInstance.Log.Level <> TLogLevel.OutputFile then
@@ -132,14 +137,15 @@ begin
 
   msLog := Format(COMMAND_LOG, [' /v:Minimal', APackage.Name]);
 
-  msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.MSBuild, TDBuildConfig.GetInstance.Compiler.PlataformToStr,
-    TDBuildConfig.GetInstance.Compiler.ActionToStr, TDBuildConfig.GetInstance.Compiler.Config,
-    TDBuildConfig.GetInstance.Compiler.BplOutput, TDBuildConfig.GetInstance.Compiler.DcuOutput,
-    TDBuildConfig.GetInstance.Compiler.DcpOutput, msLog, APackage.Path]);
+  msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.PlataformToStr, TDBuildConfig.GetInstance.Compiler.ActionToStr,
+    TDBuildConfig.GetInstance.Compiler.Config, TDBuildConfig.GetInstance.Compiler.BplOutput,
+    TDBuildConfig.GetInstance.Compiler.DcuOutput, TDBuildConfig.GetInstance.Compiler.DcpOutput, msLog, APackage.Path]);
 
   FArquivo.Add(msExec);
 
   Result := GetRootDir + 'execute.bat';
+
+  TConsole.Output(Format('Create temp bat file "%s"', [Result]));
   FArquivo.SaveToFile(Result);
 end;
 
