@@ -31,7 +31,8 @@ Uses
   DateUtils,
   IOUtils,
   ShellAPI,
-  DBuild.Utils, DBuild.Output;
+  DBuild.Utils,
+  DBuild.Output;
 
 { TPackageCompile }
 
@@ -53,53 +54,53 @@ begin
   Security.lpSecurityDescriptor := nil;
 
   StartExe := Now;
-  TDBuildOutput.Open(APackage);
-  try
-    if CreatePipe(readableEndOfPipe, writeableEndOfPipe, @Security, 0) then
+
+  if CreatePipe(readableEndOfPipe, writeableEndOfPipe, @Security, 0) then
+  begin
+    Buffer := AllocMem(READ_BUFFER_SIZE + 1);
+    FillChar(start, SizeOf(start), #0);
+    start.cb := SizeOf(start);
+
+    start.dwFlags := start.dwFlags or STARTF_USESTDHANDLES;
+    start.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+
+    start.hStdOutput := writeableEndOfPipe;
+    start.hStdError := writeableEndOfPipe;
+    start.dwFlags := start.dwFlags + STARTF_USESHOWWINDOW;
+    start.wShowWindow := SW_HIDE;
+
+    ProcessInfo := Default (TProcessInformation);
+
+    if CreateProcess(nil, PChar(AParams), nil, nil, True, NORMAL_PRIORITY_CLASS, nil, nil, start, ProcessInfo) then
     begin
-      Buffer := AllocMem(READ_BUFFER_SIZE + 1);
-      FillChar(start, SizeOf(start), #0);
-      start.cb := SizeOf(start);
+      repeat
+        AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
+        Application.ProcessMessages;
 
-      start.dwFlags := start.dwFlags or STARTF_USESTDHANDLES;
-      start.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+        if SecondsBetween(Now, StartExe) > 12 then
+        begin
+          TConsole.DebugInfo('CreateProcess timeout', []);
+          Break;
+        end;
+      until (AppRunning <> WAIT_TIMEOUT);
 
-      start.hStdOutput := writeableEndOfPipe;
-      start.hStdError := writeableEndOfPipe;
-      start.dwFlags := start.dwFlags + STARTF_USESHOWWINDOW;
-      start.wShowWindow := SW_HIDE;
-
-      ProcessInfo := Default (TProcessInformation);
-
-      if CreateProcess(nil, PChar(AParams), nil, nil, True, NORMAL_PRIORITY_CLASS, nil, nil, start, ProcessInfo) then
-      begin
-        repeat
-          AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
-          Application.ProcessMessages;
-
-          if SecondsBetween(Now, StartExe) > 12 then
-            Break;
-        until (AppRunning <> WAIT_TIMEOUT);
-
-        repeat
-          BytesRead := 0;
-          ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
-          Buffer[BytesRead] := #0;
-          OemToAnsi(Buffer, Buffer);
-          TDBuildOutput.Line(APackage, String(Buffer));
-        until (BytesRead < READ_BUFFER_SIZE);
-      end
-      else
-        TConsole.ErrorFmt('Can not create process to file %s', [AParams]);
-      FreeMem(Buffer);
-      CloseHandle(ProcessInfo.hProcess);
-      CloseHandle(ProcessInfo.hThread);
-      CloseHandle(readableEndOfPipe);
-      CloseHandle(writeableEndOfPipe);
-    end;
-  finally
-    TDBuildOutput.Close(APackage);
+      repeat
+        BytesRead := 0;
+        ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
+        Buffer[BytesRead] := #0;
+        OemToAnsi(Buffer, Buffer);
+        TDBuildOutput.TryClose(APackage, String(Buffer));
+      until (BytesRead < READ_BUFFER_SIZE);
+    end
+    else
+      TConsole.DebugInfo('Can not create process to file %s', [AParams]);
+    FreeMem(Buffer);
+    CloseHandle(ProcessInfo.hProcess);
+    CloseHandle(ProcessInfo.hThread);
+    CloseHandle(readableEndOfPipe);
+    CloseHandle(writeableEndOfPipe);
   end;
+  TDBuildOutput.Close(APackage);
 end;
 
 class procedure TPackageCompile.Exec(const APackage: TPackage);
@@ -107,8 +108,13 @@ var
   Params: string;
 begin
   if not Assigned(FArquivo) then
+  begin
     Initialize;
+    TDBuildOutput.Debug(TDBuildConfig.GetInstance.Variable.Values);
+  end;
+
   try
+    TDBuildOutput.Open(APackage);
     Params := CreateDefaultBatFile(APackage);
     Run(APackage, Params);
     TFile.Delete(Params);
@@ -126,16 +132,17 @@ const
 var
   msExec, msLog: string;
 begin
+  if not TFile.Exists(APackage.Path) then
+  begin
+    TDBuildOutput.Close(APackage, Format('project "%s" not found', [APackage.Path]));
+    exit;
+  end;
   FArquivo.Clear;
   FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
   FArquivo.Add('');
   FArquivo.Add(Format('cd "%s"', [TPath.GetDirectoryName(TDBuildConfig.GetInstance.Compiler.MSBuild)]));
 
-  // msLog := '';
-  // if TDBuildConfig.GetInstance.Log.Level <> TLogLevel.OutputFile then
-  // msLog := Format(' /v:%s', [TDBuildConfig.GetInstance.Log.LevelStr]);
-
-  msLog := Format(COMMAND_LOG, [' /v:Minimal', APackage.Name]);
+  msLog := Format(COMMAND_LOG, ['/v:Minimal', APackage.Name]);
 
   msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.PlataformToStr, TDBuildConfig.GetInstance.Compiler.ActionToStr,
     TDBuildConfig.GetInstance.Compiler.Config, TDBuildConfig.GetInstance.Compiler.BplOutput,
@@ -145,7 +152,7 @@ begin
 
   Result := GetRootDir + 'execute.bat';
 
-  TConsole.Output(Format('Create temp bat file "%s"', [Result]));
+  TConsole.DebugInfo('Command to execute = %s', [FArquivo.Text]);
   FArquivo.SaveToFile(Result);
 end;
 
@@ -165,6 +172,7 @@ begin
     Reg.Free;
   end;
 
+  TConsole.DebugInfo('Delphi installed path = %s', [FDelphiInstallDir]);
   TDirectory.CreateDirectory(GetRootDir + 'Logs');
   FArquivo := TStringList.Create;
 end;

@@ -19,10 +19,13 @@ type
   public
     class procedure ShowResult;
 
-    class procedure Open(const App: TPackage);
-    class procedure Close(const App: TPackage);
+    class procedure Debug(AVarList: TArray<TVariableData>);
 
-    class procedure Line(const App: TPackage; AStr: string);
+    class procedure Open(const App: TPackage);
+    class procedure Close(const App: TPackage); overload;
+    class procedure Close(const App: TPackage; AStr: string); overload;
+
+    class function TryClose(const App: TPackage; AStr: string): Boolean;
   end;
 
 implementation
@@ -32,6 +35,7 @@ implementation
 uses
   SysUtils,
   DateUtils,
+  Windows,
   IOUtils,
   RegularExpressions,
   DBuild.Utils,
@@ -51,7 +55,7 @@ begin
   FWarningsCount := 0;
 end;
 
-class procedure TDBuildOutput.Line(const App: TPackage; AStr: string);
+class function TDBuildOutput.TryClose(const App: TPackage; AStr: string): Boolean;
 
   procedure ExtractCounters;
   var
@@ -79,40 +83,78 @@ class procedure TDBuildOutput.Line(const App: TPackage; AStr: string);
     end;
   end;
 
+var
+  Str: string;
 begin
+  Result := False;
   AStr := AStr.ToLower;
-  if AStr.Contains('compilação com êxito.') then
+  if AStr.Contains('compilação com êxito.') or AStr.Contains('compilação efectuada com êxito.') then
   begin
-    TConsole.Output('SUCCESS', Green);
-    TConsole.Output('');
     if AStr.Length < 1000 then
       TConsole.Output(AStr)
     else
       TConsole.Output(Copy(AStr, AStr.Length - 1000, AStr.Length - 1));
     ExtractCounters;
     FListApp.Items[App] := True;
+    TConsole.Output('');
+    TConsole.Output('SUCCESS', Green);
+    Result := True;
   end
   else if AStr.Contains('falha da compilação.') then
   begin
-    TConsole.Output('FAILED', Red);
-    TConsole.Output('');
-    if AStr.Length < 1000 then
-      TConsole.Output(AStr, Red)
-    else
-      TConsole.Output(Copy(AStr, AStr.Length - 1000, AStr.Length - 1), Red);
 
-    TConsole.Output(AStr, Red);
+    if AStr.Length < 1000 then
+      Str := AStr
+    else
+      Str := Copy(AStr, AStr.Length - 1000, AStr.Length - 1);
+
+    TConsole.Output(Str, Red);
     ExtractCounters;
     FListApp.Items[App] := True;
+
+    TConsole.Output('');
+    TConsole.Output('FAILED', Red);
+    Result := True;
   end;
 end;
 
 class procedure TDBuildOutput.Open(const App: TPackage);
 begin
-  TConsole.Output(Format('%s = Starting %s. [%s]', [TDBuildConfig.GetInstance.Compiler.PlataformToStr,
-    TDBuildConfig.GetInstance.Compiler.ActionToStr, App.Name]));
+  TConsole.Output(Format('Starting %s. [%s]', [TDBuildConfig.GetInstance.Compiler.ActionToStr, App.Name]));
+  TConsole.Output('Platform: ' + TDBuildConfig.GetInstance.Compiler.PlataformToStr);
   TConsole.Output('');
   FListApp.Add(App, False);
+end;
+
+class procedure TDBuildOutput.Debug(AVarList: TArray<TVariableData>);
+var
+  VarI: TVariableData;
+  Value: string;
+begin
+  if not TDBuildParams.IsDebug then
+    exit;
+  for VarI in AVarList do
+  begin
+    Value := VarI.Value;
+    if VarI.FromWindows then
+    begin
+      Value := StringReplace(Value, '$(', '', []);
+      Value := StringReplace(Value, ')', '', []);
+
+      Value := GetEnvironmentVariable(Value);
+    end;
+    TConsole.DebugInfo('Variable %s = %s', [VarI.Name, Value]);
+  end;
+  TConsole.Line;
+end;
+
+class procedure TDBuildOutput.Close(const App: TPackage; AStr: string);
+begin
+  TConsole.Output(AStr, Red);
+  FListApp.Items[App] := True;
+  inc(FErrorsCount);
+  TConsole.Output('');
+  TConsole.Output('FAILED', Red);
 end;
 
 class procedure TDBuildOutput.Close(const App: TPackage);
@@ -128,12 +170,14 @@ begin
       if TFile.Exists(LogFile) then
       begin
         LFile.LoadFromFile(LogFile);
-        TDBuildOutput.Line(App, LFile.Text);
+        TryClose(App, LFile.Text);
         if not FListApp.Items[App] then
-          TConsole.Output(Format('it is not possible to identify the result of the action [%s]', [App.Name]), Red);
+          Close(App, LFile.Text);
       end
       else
-        TConsole.Output(Format('Log file [%s] not found', [LogFile]), Red);
+      begin
+        Close(App, Format('Log file [%s] not found', [LogFile]));
+      end;
     finally
       LFile.Free;
     end;
@@ -152,6 +196,11 @@ begin
     TConsole.Write('');
     TConsole.Write('Press ENTER to exit...');
     Readln;
+  end
+  else
+  begin
+    if FErrorsCount > 0 then
+      raise EDBuildException.CreateFmt('Foram encontrados %d erro(s)', [FErrorsCount]);
   end;
 end;
 

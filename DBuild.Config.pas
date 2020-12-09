@@ -140,7 +140,7 @@ Uses
   Classes,
   Rest.Json,
   DBuild.Params,
-  DBuild.Utils;
+  DBuild.Utils, DBuild.Console;
 
 function FormatPath(const APath: string): string;
 begin
@@ -219,7 +219,6 @@ begin
       Value := StringReplace(Value, ')', '', []);
       Value := GetEnvironmentVariable(Value);
     end;
-
     Result := StringReplace(Result, VarData.Name, Value, [rfReplaceAll, rfIgnoreCase]);
   end;
 end;

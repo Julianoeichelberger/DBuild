@@ -64,13 +64,15 @@ begin
     if TDBuildParams.ResetLibraryPath then
       TDelphiLibraryPath.Exec;
 
+    if TDBuildParams.ExitAfterResetLibPath then
+      exit;
+
     for Pack in TDBuildConfig.GetInstance.Packages do
     begin
       TPackageCompile.Exec(Pack);
-      if TDBuildConfig.GetInstance.Log.Level = OutputFile then
-      begin
-
-      end;
+//      if TDBuildConfig.GetInstance.Log.Level = OutputFile then
+//      begin
+//      end;
       if Pack.Installed then
         TPackageInstall.RegisterBPL(Pack);
     end;

@@ -15,6 +15,7 @@ type
     class procedure Line; static;
     class procedure Banner; static;
     class procedure PrintResult(const AWarn, AErrors: Integer; ATime: TDateTime); static;
+    class procedure DebugInfo(const AText: string; AParams: Array of const); static;
   end;
 
 implementation
@@ -23,7 +24,7 @@ Uses
   System.SysUtils,
   winapi.windows,
   DBuild.Config,
-  DBuild.Utils;
+  DBuild.Utils, DBuild.Params;
 
 { TConsole }
 
@@ -31,7 +32,7 @@ class procedure TConsole.Error(const AText: string);
 begin
   TConsole.Output(AText, Red);
 
- // raise EDBuildException.Create(AText);
+  // raise EDBuildException.Create(AText);
 end;
 
 class procedure TConsole.ErrorFmt(const AText: string; AParams: array of const);
@@ -89,6 +90,14 @@ begin
   TConsole.Write('*                                                                    *');
   TConsole.Write('*        License - http://www.apache.org/licenses/LICENSE-2.0        *');
   TConsole.Write('**********************************************************************');
+  TConsole.Write('');
+  TConsole.DebugInfo('Rootdir = %s', [GetRootDir]);
+end;
+
+class procedure TConsole.DebugInfo(const AText: string; AParams: array of const);
+begin
+  if TDBuildParams.IsDebug then
+    TConsole.Output('DEBUG: ' + Format(AText, AParams), Blue);
 end;
 
 class procedure TConsole.PrintResult(const AWarn, AErrors: Integer; ATime: TDateTime);

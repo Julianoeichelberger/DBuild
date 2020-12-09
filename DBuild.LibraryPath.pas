@@ -31,7 +31,7 @@ uses DBuild.Console;
 class procedure TDelphiLibraryPath.Exec;
 var
   LIBRARY_PATH: TStringList;
-  Path: string;
+  Path, FormtPath: string;
 begin
   FIsOpened := OpenedKey;
   if FIsOpened then
@@ -48,7 +48,12 @@ begin
       LIBRARY_PATH.Add('$(DELPHI)\include');
 
       for Path in TDBuildConfig.GetInstance.LibraryPath.Values do
-        LIBRARY_PATH.Add(FormatPath(Path));
+      begin
+        FormtPath := FormatPath(Path);
+        LIBRARY_PATH.Add(FormtPath);
+
+        TConsole.DebugInfo('Add LibraryPath = %s', [FormtPath]);
+      end;
 
       FReg.WriteString('Search Path', LIBRARY_PATH.DelimitedText);
     finally
