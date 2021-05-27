@@ -39,6 +39,7 @@ const
 var
   Path: string;
 begin
+  Result := False;
   Path := Format(PATH_KEY, [TDBuildConfig.GetInstance.Compiler.Version]);
   try
     FReg.RootKey := HKEY_CURRENT_USER;
@@ -46,9 +47,12 @@ begin
   except
     On E: Exception do
     begin
-      ExitCode := 1;
       TConsole.ErrorFmt('Error on open %s windows registry', [Path]);
-      raise;
+      if TDBuildConfig.GetInstance.Failure.Error then
+      begin
+        ExitCode := 1;
+        raise;
+      end;
     end;
   end;
 end;
@@ -73,9 +77,12 @@ begin
     except
       On E: Exception do
       begin
-        ExitCode := 1;
         TConsole.ErrorFmt('Error on write %s in windows registry', [BplName]);
-        raise;
+        if TDBuildConfig.GetInstance.Failure.Error then
+        begin
+          ExitCode := 1;
+          raise;
+        end;
       end;
     end;
   end;

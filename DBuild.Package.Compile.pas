@@ -113,11 +113,21 @@ begin
   except
     on E: EDBuildException do
     begin
-      ExitCode := 1;
-      raise;
+      if TDBuildConfig.GetInstance.Failure.Error then
+      begin
+        ExitCode := 1;
+        raise;
+      end;
     end;
     on E: Exception do
+    begin
       TConsole.Error(E.Message);
+      if TDBuildConfig.GetInstance.Failure.Error then
+      begin
+        ExitCode := 1;
+        raise;
+      end;
+    end;
   end;
 end;
 

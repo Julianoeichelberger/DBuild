@@ -24,7 +24,7 @@ type
 implementation
 
 Uses
-  System.SysUtils, winapi.windows, DBuild.Utils, DBuild.Params;
+  System.SysUtils, winapi.windows, DBuild.Utils, DBuild.Params, DBuild.Config;
 
 { TConsole }
 
@@ -128,6 +128,8 @@ begin
   TConsole.Output('**********************************************************************', Red);
   TConsole.Output(Format(' %s', [AText]), Red);
   TConsole.Output('**********************************************************************', Red);
+  if TDBuildConfig.GetInstance.Failure.Error then
+    ExitCode := 1;
 end;
 
 end.

@@ -28,7 +28,7 @@ implementation
 
 { TDelphiLibraryPath }
 
-uses DBuild.Console;
+uses DBuild.Console, DBuild.Utils;
 
 function TDelphiLibraryPath.GetUpdatedList: string;
 var
@@ -78,7 +78,11 @@ begin
     if not Reg.OpenKey(RegStr, false) then
     begin
       TConsole.PrintErrorResult('Can not find delphi instalation');
-      exit;
+      if TDBuildConfig.GetInstance.Failure.Error then
+      begin
+        ExitCode := 1;
+        raise EDBuildException.Create('Can not find delphi instalation');
+      end;
     end;
 
     Reg.WriteString('Search Path', GetUpdatedList);
