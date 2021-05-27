@@ -52,6 +52,15 @@ type
     property Level: TLogLevel read FLevel write FLevel;
   end;
 
+  TFailure = class
+  private
+    FMax_warnings_acceptable: Integer;
+    FError: Boolean;
+  public
+    property Error: Boolean read FError write FError;
+    property Max_warnings_acceptable: Integer read FMax_warnings_acceptable write FMax_warnings_acceptable;
+  end;
+
   TVariableData = Class
   private
     FName: string;
@@ -109,6 +118,7 @@ type
     FLibraryPath: TLibraryPath;
     FPackages: TArray<TPackage>;
     FLog: TLog;
+    FFailure: TFailure;
     function FileAsText: string;
     function FromJsonString(AJsonString: string): TDBuildConfig;
   public
@@ -126,6 +136,7 @@ type
     property LibraryPath: TLibraryPath read FLibraryPath write FLibraryPath;
     property Log: TLog read FLog write FLog;
     property Packages: TArray<TPackage> read FPackages write FPackages;
+    property Failure: TFailure read FFailure write FFailure;
   end;
 
 function FormatPath(const APath: string): string;
@@ -133,14 +144,7 @@ function FormatPath(const APath: string): string;
 implementation
 
 Uses
-  Generics.Collections,
-  IOUtils,
-  Rtti,
-  SysUtils,
-  Classes,
-  Rest.Json,
-  DBuild.Params,
-  DBuild.Utils, DBuild.Console;
+  Generics.Collections, IOUtils, Rtti, SysUtils, Classes, Rest.Json, DBuild.Params, DBuild.Utils;
 
 function FormatPath(const APath: string): string;
 begin
@@ -243,6 +247,7 @@ begin
   FCompiler := TCompiler.Create;
   FLibraryPath := TLibraryPath.Create;
   FLog := TLog.Create;
+  FFailure := TFailure.Create;
 end;
 
 destructor TDBuildConfig.Destroy;
@@ -255,6 +260,7 @@ begin
   FLibraryPath.Free;
   for Pack in FPackages do
     Pack.Free;
+  FFailure.Free;
   inherited;
 end;
 

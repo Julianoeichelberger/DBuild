@@ -24,15 +24,7 @@ type
 implementation
 
 Uses
-  Vcl.Forms,
-  Registry,
-  Windows,
-  SysUtils,
-  DateUtils,
-  IOUtils,
-  ShellAPI,
-  DBuild.Utils,
-  DBuild.Output;
+  Vcl.Forms, Registry, Windows, SysUtils, DateUtils, IOUtils, ShellAPI, DBuild.Utils, DBuild.Output;
 
 { TPackageCompile }
 
@@ -119,6 +111,11 @@ begin
     Run(APackage, Params);
     TFile.Delete(Params);
   except
+    on E: EDBuildException do
+    begin
+      ExitCode := 1;
+      raise;
+    end;
     on E: Exception do
       TConsole.Error(E.Message);
   end;
@@ -183,8 +180,6 @@ begin
 end;
 
 initialization
-
-// TPackageCompile.Initialize;
 
 finalization
 

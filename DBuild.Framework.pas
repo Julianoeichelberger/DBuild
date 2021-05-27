@@ -9,8 +9,7 @@ uses
   DBuild.LibraryPath,
   DBuild.Package.Compile,
   DBuild.Package.Install,
-  DBuild.Params,
-  DBuild.Utils;
+  DBuild.Params;
 
 type
   TDBuild = class
@@ -23,7 +22,7 @@ type
 implementation
 
 Uses
-  IOUtils;
+  IOUtils, DBuild.Output;
 
 { TDBuild }
 
@@ -32,20 +31,23 @@ begin
   Result := False;
   if not TFile.Exists(TDBuildParams.ConfigFileName) then
   begin
-    TConsole.ErrorFmt('configuration file %s not found', [TDBuildParams.ConfigFileName]);
+    TConsole.PrintErrorResult(format('configuration file %s not found', [TDBuildParams.ConfigFileName]));
+    ExitCode := 1;
     exit;
   end;
 
   try
     TDBuildConfig.GetInstance.LoadConfig;
   except
-    TConsole.ErrorFmt('Invalid configuration file %s', [TDBuildParams.ConfigFileName]);
+    TConsole.PrintErrorResult(format('Invalid configuration file %s', [TDBuildParams.ConfigFileName]));
+    ExitCode := 1;
     exit;
   end;
 
   if not TFile.Exists(TDBuildConfig.GetInstance.Compiler.MSBuild) then
   begin
-    TConsole.Error('MSBuild not found');
+    TConsole.PrintErrorResult('MSBuild not found');
+    ExitCode := 1;
     exit;
   end;
   Result := True;
@@ -56,26 +58,27 @@ var
   Build: TDBuild;
   Pack: TPackage;
 begin
+  TConsole.Banner;
   Build := TDBuild.Create;
   try
     if not Build.ValidatedParams then
       exit;
 
-    if TDBuildParams.ResetLibraryPath then
-      TDelphiLibraryPath.Exec;
+    if TDBuildParams.UpdateLibraryPath then
+      TDelphiLibraryPath.New.Update;
 
-    if TDBuildParams.ExitAfterResetLibPath then
+    if not TDBuildParams.Enabled then
       exit;
-
     for Pack in TDBuildConfig.GetInstance.Packages do
     begin
       TPackageCompile.Exec(Pack);
-//      if TDBuildConfig.GetInstance.Log.Level = OutputFile then
-//      begin
-//      end;
+      // if TDBuildConfig.GetInstance.Log.Level = OutputFile then
+      // begin
+      // end;
       if Pack.Installed then
         TPackageInstall.RegisterBPL(Pack);
     end;
+    TDBuildOutput.ShowResult;
   finally
     Build.Free;
   end;

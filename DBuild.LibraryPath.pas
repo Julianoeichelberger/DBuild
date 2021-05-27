@@ -10,16 +10,18 @@ uses
   DBuild.Config;
 
 type
-  TDelphiLibraryPath = class
-  strict private
-    class var FReg: TRegistry;
-    class var FIsOpened: Boolean;
-    class function OpenedKey: Boolean;
+  IDelphiLibraryPath = Interface
+    ['{3803840C-BE04-40A4-B882-AE9B0728E67C}']
+    procedure Update;
+  End;
+
+  TDelphiLibraryPath = class(TInterfacedObject, IDelphiLibraryPath)
   private
-    class procedure Initialize;
-    class procedure ReleaseIstance;
+    function GetUpdatedList: string;
   public
-    class procedure Exec;
+    procedure Update;
+
+    class function New: IDelphiLibraryPath;
   end;
 
 implementation
@@ -28,77 +30,63 @@ implementation
 
 uses DBuild.Console;
 
-class procedure TDelphiLibraryPath.Exec;
+function TDelphiLibraryPath.GetUpdatedList: string;
 var
-  LIBRARY_PATH: TStringList;
+  Paths: TStringList;
   Path, FormtPath: string;
 begin
-  FIsOpened := OpenedKey;
-  if FIsOpened then
-  begin
-    LIBRARY_PATH := TStringList.Create;
-    try
-      LIBRARY_PATH.Delimiter := ';';
-      LIBRARY_PATH.StrictDelimiter := True;
+  Paths := TStringList.Create;
+  try
+    Paths.Delimiter := ';';
+    Paths.StrictDelimiter := True;
 
-      LIBRARY_PATH.Add('$(BDSLIB)\$(Platform)\release');
-      LIBRARY_PATH.Add('$(BDSUSERDIR)\Imports');
-      LIBRARY_PATH.Add('$(DELPHI)\Imports');
-      LIBRARY_PATH.Add('$(BDSCOMMONDIR)\Dcp');
-      LIBRARY_PATH.Add('$(DELPHI)\include');
+    Paths.Add('$(BDSLIB)\$(Platform)\release');
+    Paths.Add('$(BDSUSERDIR)\Imports');
+    Paths.Add('$(DELPHI)\Imports');
+    Paths.Add('$(BDSCOMMONDIR)\Dcp');
+    Paths.Add('$(DELPHI)\include');
 
-      for Path in TDBuildConfig.GetInstance.LibraryPath.Values do
-      begin
-        FormtPath := FormatPath(Path);
-        LIBRARY_PATH.Add(FormtPath);
+    for Path in TDBuildConfig.GetInstance.LibraryPath.Values do
+    begin
+      FormtPath := FormatPath(Path);
+      Paths.Add(FormtPath);
 
-        TConsole.DebugInfo('Add LibraryPath = %s', [FormtPath]);
-      end;
-
-      FReg.WriteString('Search Path', LIBRARY_PATH.DelimitedText);
-    finally
-      LIBRARY_PATH.Free;
+      TConsole.DebugInfo('Add LibraryPath = %s', [FormtPath]);
     end;
+    Result := Paths.DelimitedText;
+  finally
+    Paths.Free;
   end;
 end;
 
-class procedure TDelphiLibraryPath.Initialize;
+class function TDelphiLibraryPath.New: IDelphiLibraryPath;
 begin
-  FReg := TRegistry.Create;
+  Result := TDelphiLibraryPath.Create;
 end;
 
-class function TDelphiLibraryPath.OpenedKey: Boolean;
+procedure TDelphiLibraryPath.Update;
 const
   LIBRARY_PATH_REG = '\Software\Embarcadero\BDS\%0:s\Library\%1:s';
 var
-  Reg: string;
+  Reg: TRegistry;
+  RegStr: string;
 begin
+  Reg := TRegistry.Create;
   try
-    Reg := Format(LIBRARY_PATH_REG, [TDBuildConfig.GetInstance.Compiler.Version,
+    RegStr := Format(LIBRARY_PATH_REG, [TDBuildConfig.GetInstance.Compiler.Version,
       TDBuildConfig.GetInstance.Compiler.PlataformToStr]);
-    Result := FReg.OpenKey(Reg, false);
-  except
-    On E: Exception do
+    if not Reg.OpenKey(RegStr, false) then
     begin
-      TConsole.WriteFmt('Error on open %s windows registry', [Reg]);
-      raise;
+      TConsole.PrintErrorResult('Can not find delphi instalation');
+      exit;
     end;
+
+    Reg.WriteString('Search Path', GetUpdatedList);
+    TConsole.PrintOkResult('LibraryPath was updated');
+  finally
+    Reg.CloseKey;
+    Reg.Free;
   end;
 end;
-
-class procedure TDelphiLibraryPath.ReleaseIstance;
-begin
-  if FIsOpened then
-    FReg.CloseKey;
-  FReg.Free;
-end;
-
-initialization
-
-TDelphiLibraryPath.Initialize;
-
-finalization
-
-TDelphiLibraryPath.ReleaseIstance;
 
 end.

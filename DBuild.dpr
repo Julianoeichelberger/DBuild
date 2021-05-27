@@ -18,9 +18,7 @@ uses
 
 begin
   try
-    TConsole.Banner;
     TDBuild.Execute;
-    TDBuildOutput.ShowResult;
   except
     on E: Exception do
       TConsole.WriteFmt('%s: %s', [E.ClassName, E.Message]);

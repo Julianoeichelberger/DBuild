@@ -115,7 +115,16 @@ begin
     TConsole.Output('');
     TConsole.Output('FAILED', Red);
     Result := True;
+
+    if TDBuildConfig.GetInstance.Failure.Error then
+    begin
+      raise EDBuildException.Create('Process stoped');
+    end;
   end;
+
+  if (FWarningsCount > TDBuildConfig.GetInstance.Failure.Max_warnings_acceptable) and
+    (TDBuildConfig.GetInstance.Failure.Max_warnings_acceptable > -1) then
+    raise EDBuildException.CreateFmt('Maximum warnings reached [%d]', [FWarningsCount]);
 end;
 
 class procedure TDBuildOutput.Open(const App: TPackage);
@@ -189,7 +198,7 @@ class procedure TDBuildOutput.ShowResult;
 begin
   FTotalTime := TimeOf(Now - FTotalTime);
 
-  TConsole.PrintResult(FWarningsCount, FErrorsCount, FTotalTime);
+  TConsole.PrintBuildResult(FWarningsCount, FErrorsCount, FTotalTime);
 
   if not TDBuildParams.IsCI then
   begin

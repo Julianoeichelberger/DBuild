@@ -39,14 +39,17 @@ const
 var
   Path: string;
 begin
-  Result := False;
   Path := Format(PATH_KEY, [TDBuildConfig.GetInstance.Compiler.Version]);
   try
     FReg.RootKey := HKEY_CURRENT_USER;
     Result := FReg.OpenKey(Path, True);
   except
     On E: Exception do
+    begin
+      ExitCode := 1;
       TConsole.ErrorFmt('Error on open %s windows registry', [Path]);
+      raise;
+    end;
   end;
 end;
 
@@ -69,7 +72,11 @@ begin
         TConsole.ErrorFmt('Install: bpl %s not found', [BplName]);
     except
       On E: Exception do
+      begin
+        ExitCode := 1;
         TConsole.ErrorFmt('Error on write %s in windows registry', [BplName]);
+        raise;
+      end;
     end;
   end;
 end;
