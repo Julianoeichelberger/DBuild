@@ -38,17 +38,13 @@
     }, 
     "packages": [
 	  {
-        "description": "",
         "path": "%BRANCH%\\3rd\\app\\Apptest.dproj",
         "installed": false,
-        "dependency": false,
         "version": [1, 0, 0, 0]
       },
 	  {
-        "description": "",
         "path": "%BRANCH%\\src\\package\\PackageTest.dproj",
         "installed": false,
-        "dependency": false,
         "version": [1, 0, 0, 0]
       }
     ]
