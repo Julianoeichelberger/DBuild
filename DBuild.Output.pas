@@ -209,7 +209,7 @@ begin
   else
   begin
     if FErrorsCount > 0 then
-      raise EDBuildException.CreateFmt('Foram encontrados %d erro(s)', [FErrorsCount]);
+      raise EDBuildException.CreateFmt('Were found %d error(s)', [FErrorsCount]);
   end;
 end;
 

@@ -104,6 +104,8 @@ type
   public
     function Name: string;
 
+    function VersionToStr: string;
+
     property Installed: Boolean read FInstalled write FInstalled;
     property Path: string read GetPath write FPath;
     property Version: TVersion read FVersion write FVersion;
@@ -237,6 +239,11 @@ end;
 function TPackage.Name: string;
 begin
   Result := TPath.GetFileNameWithoutExtension(FPath);
+end;
+
+function TPackage.VersionToStr: string;
+begin
+  Result := Format('%d.%d.%d.%d', [FVersion.Major, FVersion.Minor, FVersion.Release, FVersion.Build]);
 end;
 
 { TDBuildConfig }

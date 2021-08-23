@@ -58,8 +58,6 @@ begin
 end;
 
 class procedure TPackageInstall.RegisterBPL(const APackage: TPackage);
-const
-  BPL_COMMMON_DIR = '$(BDSCOMMONDIR)\Bpl\';
 var
   BplName: string;
 begin
@@ -69,7 +67,8 @@ begin
   if FIsOpened then
   begin
     try
-      BplName := Format('%s%s.bpl', [IncludeTrailingPathDelimiter(TDBuildConfig.GetInstance.Compiler.BplOutput), APackage.Name]);
+      BplName := Format('%s%s.bpl', [
+        IncludeTrailingPathDelimiter(TDBuildConfig.GetInstance.Compiler.BplOutput), APackage.Name]);
 
       FReg.WriteString(BplName, APackage.Name);
       if FReg.ReadString(BplName).Contains('not found') then

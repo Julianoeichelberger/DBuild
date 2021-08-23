@@ -84,7 +84,7 @@ end;
 class procedure TConsole.Banner;
 begin
   TConsole.Write('**********************************************************************');
-  TConsole.Write('*        DBuild - VErsion 1.1 - (c) 2020 - Juliano Eichelberger      *');
+  TConsole.Write('*        DBuild - Version 1.2 - (c) 2021 - Juliano Eichelberger      *');
   TConsole.Write('*                                                                    *');
   TConsole.Write('*        License - http://www.apache.org/licenses/LICENSE-2.0        *');
   TConsole.Write('**********************************************************************');

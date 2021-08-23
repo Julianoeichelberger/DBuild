@@ -133,7 +133,7 @@ end;
 
 class function TPackageCompile.CreateDefaultBatFile(const APackage: TPackage): string;
 const
-  COMMAND = 'MSBuild.exe /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
+  COMMAND = 'MSBuild.exe /p:platform=%s /t:%s /p:config=%s;VersionAssembly=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
 
   COMMAND_LOG = '%s /flp:logfile=logs/%s.log ';
 var
@@ -145,15 +145,20 @@ begin
     exit;
   end;
   FArquivo.Clear;
-  FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
+//  FArquivo.Add(Format('call "%sBin\rsvars.bat"', [FDelphiInstallDir]));
   FArquivo.Add('');
   FArquivo.Add(Format('cd "%s"', [TPath.GetDirectoryName(TDBuildConfig.GetInstance.Compiler.MSBuild)]));
 
   msLog := Format(COMMAND_LOG, ['/v:Minimal', APackage.Name]);
 
-  msExec := Format(COMMAND, [TDBuildConfig.GetInstance.Compiler.PlataformToStr, TDBuildConfig.GetInstance.Compiler.ActionToStr,
-    TDBuildConfig.GetInstance.Compiler.Config, TDBuildConfig.GetInstance.Compiler.BplOutput,
-    TDBuildConfig.GetInstance.Compiler.DcuOutput, TDBuildConfig.GetInstance.Compiler.DcpOutput, msLog, APackage.Path]);
+  msExec := Format(COMMAND, [
+    TDBuildConfig.GetInstance.Compiler.PlataformToStr,
+    TDBuildConfig.GetInstance.Compiler.ActionToStr,
+    TDBuildConfig.GetInstance.Compiler.Config,
+    APackage.VersionToStr,
+    TDBuildConfig.GetInstance.Compiler.BplOutput,
+    TDBuildConfig.GetInstance.Compiler.DcuOutput,
+    TDBuildConfig.GetInstance.Compiler.DcpOutput, msLog, APackage.Path]);
 
   FArquivo.Add(msExec);
 
