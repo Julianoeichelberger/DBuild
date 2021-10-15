@@ -1,0 +1,6 @@
+[submodule "3rd/Neslib.Yaml"]
+	path = 3rd/Neslib.Yaml
+	url = git@github.com:neslib/Neslib.Yaml.git
+[submodule "3rd/Neslib"]
+	path = 3rd/Neslib
+	url = git@github.com:neslib/Neslib.git

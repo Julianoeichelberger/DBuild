@@ -1,0 +1,204 @@
+--- 
+compile: 
+  action: "Build"
+  config: "Build"
+  bpl_output: "$(WORKSPACE)/bin/bpl"
+  dcp_output: "$(WORKSPACE)/bin/output/dcp"
+  dcu_output: "$(WORKSPACE)/bin/output/dcu"
+  log_output: "$(WORKSPACE)/bin/output/logs/build"
+  plataform: "Win32"
+  version: "20.0"
+libraryPath:    
+  - "$(WORKSPACE)/3rd/OmniXml"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/ACBrComum"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/ACBrSerial"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/Terceiros/FastStringReplace"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/Terceiros/GZIPUtils"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/Terceiros/json4delphi"
+  - "$(WORKSPACE)/3rd/ACBrPosPrinter/src/Terceiros/synalist"
+  - "$(WORKSPACE)/3rd/FortesReport/source" 
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/error"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/metadata"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/metricset"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/share"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/transaction"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source/span"
+  - "$(WORKSPACE)/3rd/ElasticAPM4D/source"	
+  - "$(WORKSPACE)/3rd/DelphiGrpc/GrijjyFoundation"
+  - "$(WORKSPACE)/3rd/DelphiGrpc/gRPC"
+  - "$(WORKSPACE)/3rd/DelphiGrpc/ngHttp2"	 
+  - "$(WORKSPACE)/3rd/jcl/source/common"
+  - "$(WORKSPACE)/3rd/jcl/source/include"	 
+  - "$(WORKSPACE)/3rd/jcl/source/prototypes"
+  - "$(WORKSPACE)/3rd/jcl/source/prototypes/containers"
+  - "$(WORKSPACE)/3rd/jcl/source/prototypes/win32api"
+  - "$(WORKSPACE)/3rd/jcl/source/vcl"
+  - "$(WORKSPACE)/3rd/jcl/source/windows"
+  - "$(WORKSPACE)/3rd/TMS VCL UI Pack"
+  - "$(WORKSPACE)/3rd/TMS VCL UI Pack/xlsAdapter"	 
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressBars/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressCommon Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressCore Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressDataController/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressEditors Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressExport Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressGDI+ Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressLayout Control/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressLibrary/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressNavBar/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressPageControl/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressPivotGrid/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressPrinting System/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressQuantumGrid/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressVerticalGrid/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressSkins Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressOfficeCore Library/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressSpreadSheet Core/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressQuantumTreeList/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressSpreadSheet/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressMemData/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressPDFViewer/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressGauge Control/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressDocking Library/Sources" 
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressTile Control/Sources"  
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressWizard Control/Sources"   
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressOrgChart/Sources"    
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressFlowChart/Sources"    
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressMap Control/Sources"    
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressDBTree Suite/Sources"   
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressScheduler/Sources"
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressRichEdit Control/Sources"  
+  - "$(WORKSPACE)/3rd/DevExpress/ExpressSpellChecker/Sources"     
+  - "$(WORKSPACE)/3rd/DevExpress/XP Theme Manager/Sources"
+  - "$(WORKSPACE)/3rd/madexcept/madBasic/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madDisAsm/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madKernel/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madSecurity/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madShell/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madExcept/BDS20/win32"
+  - "$(WORKSPACE)/3rd/madexcept/madExcept/Plugins/win32"
+  - "$(WORKSPACE)/bin/output/dcp"
+projects: 
+  ZSCommonsUtils: 
+    path: "$(WORKSPACE)/src/framework/commons/utils/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/commons/utils/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSCommonsCrypto: 
+    path: "$(WORKSPACE)/src/framework/commons/crypto/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/commons/crypto/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSCommonsLib32: 
+    path: "$(WORKSPACE)/src/framework/commons/lib32/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/commons/lib32/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSCommonsSkin: 
+    path: "$(WORKSPACE)/src/framework/commons/skin/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/commons/skin/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSBusiness: 
+    path: "$(WORKSPACE)/src/framework/business/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/business/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSLogged: 
+    path: "$(WORKSPACE)/src/framework/logged/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/logged/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSCustomControls: 
+    path: "$(WORKSPACE)/src/framework/controls/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/controls/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSControls: 
+    path: "$(WORKSPACE)/src/framework/controls/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/controls/source/"
+    librarypath: true
+    max_warnings: 0
+    installed: true
+  ZSAccess: 
+    path: "$(WORKSPACE)/src/framework/controls/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/controls/source/"
+    librarypath: true
+    max_warnings: 0
+    installed: true
+  ZDesignControls: 
+    path: "$(WORKSPACE)/src/framework/zdesign/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/zdesign/source/"
+    librarypath: true
+    max_warnings: 0
+    installed: true
+  ZSLookup: 
+    path: "$(WORKSPACE)/src/framework/controls/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/controls/source/"
+    librarypath: true
+    max_warnings: 0
+    installed: true
+  ZSView: 
+    path: "$(WORKSPACE)/src/framework/view/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/view/source/"
+    librarypath: true
+    max_warnings: 0
+  ZSSystem: 
+    path: "$(WORKSPACE)/src/framework/system/package/"
+    source: 
+      - "$(WORKSPACE)/src/framework/system/source/"
+    max_warnings: 0
+  InvoiceCustomer: 
+    path: "$(WORKSPACE)/src/invoice/customer/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/customer/source/"
+    max_warnings: 0
+  InvoiceTarget: 
+    path: "$(WORKSPACE)/src/invoice/target/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/target/source/"
+    max_warnings: 0
+  InvoiceTill: 
+    path: "$(WORKSPACE)/src/invoice/till/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/till/source/"
+    max_warnings: 0
+  InvoicePayment: 
+    path: "$(WORKSPACE)/src/invoice/payment/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/payment/source/"
+    max_warnings: 0
+  InvoiceDocument: 
+    path: "$(WORKSPACE)/src/invoice/document/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/document/source/"
+    max_warnings: 0
+  InvoiceItem: 
+    path: "$(WORKSPACE)/src/invoice/item/package/"
+    source: 
+      - "$(WORKSPACE)/src/invoice/item/source/"
+    max_warnings: 0
+  FrontOffice: 
+    path: "$(WORKSPACE)/src/projects/FrontOffice/"
+    source: 
+      - "$(WORKSPACE)/src/projects/FrontOffice/"
+    max_warnings: 0 
+QA:
+  active: true
+  output_extension: "html"
+  output_path: "$(WORKSPACE)/bin/output/html"
+
+
+  

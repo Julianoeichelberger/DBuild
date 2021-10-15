@@ -1,24 +1,25 @@
 unit DBuild.Package.Install;
-
+
 interface
 
 uses
-  Registry,
-  Windows,
-  SysUtils,
-  DBuild.Config;
+  Registry, Windows, SysUtils, DBuild.Interfaces, DBuild.Config.Classes, DBuild.Config;
 
 type
-  TPackageInstall = class
+  TPackageInstall = class(TInterfacedObject, IPackageAction)
   strict private
-    class var FReg: TRegistry;
-    class var FIsOpened: Boolean;
-    class function OpenedInstallPackageKey: Boolean;
+    FPackage: TPackage;
+    FReg: TRegistry;
+    FFileName: string;
   private
-    class procedure Initialize;
-    class procedure ReleaseIstance;
+    procedure Execute;
+    function CanExecute: Boolean;
+    procedure AfterExecute;
+    procedure BeforeExecute;
+    procedure PrintResult;
   public
-    class procedure RegisterBPL(const APackage: TPackage);
+    constructor Create(APackage: TPackage);
+    class function New(APackage: TPackage): IPackageAction;
   end;
 
 implementation
@@ -26,80 +27,71 @@ implementation
 { TPackageInstall }
 
 uses
-  DBuild.Console;
+  DBuild.Console, DBuild.Params, DBuild.Resources;
 
-class procedure TPackageInstall.Initialize;
+constructor TPackageInstall.Create(APackage: TPackage);
 begin
   FReg := TRegistry.Create;
+  FPackage := APackage;
 end;
 
-class function TPackageInstall.OpenedInstallPackageKey: Boolean;
-const
-  PATH_KEY = 'Software\Embarcadero\BDS\%s\Known Packages';
-var
-  Path: string;
+class function TPackageInstall.New(APackage: TPackage): IPackageAction;
 begin
-  Result := False;
-  Path := Format(PATH_KEY, [TDBuildConfig.GetInstance.Compiler.Version]);
-  try
-    FReg.RootKey := HKEY_CURRENT_USER;
-    Result := FReg.OpenKey(Path, True);
-  except
-    On E: Exception do
-    begin
-      TConsole.ErrorFmt('Error on open %s windows registry', [Path]);
-      if TDBuildConfig.GetInstance.Failure.Error then
-      begin
-        ExitCode := 1;
-        raise;
-      end;
-    end;
-  end;
+  result := TPackageInstall.Create(APackage);
 end;
 
-class procedure TPackageInstall.RegisterBPL(const APackage: TPackage);
-var
-  BplName: string;
+procedure TPackageInstall.AfterExecute;
 begin
-  if not FIsOpened then
-    FIsOpened := OpenedInstallPackageKey;
-
-  if FIsOpened then
-  begin
-    try
-      BplName := Format('%s%s.bpl', [
-        IncludeTrailingPathDelimiter(TDBuildConfig.GetInstance.Compiler.BplOutput), APackage.Name]);
-
-      FReg.WriteString(BplName, APackage.Name);
-      if FReg.ReadString(BplName).Contains('not found') then
-        TConsole.ErrorFmt('Install: bpl %s not found', [BplName]);
-    except
-      On E: Exception do
-      begin
-        TConsole.ErrorFmt('Error on write %s in windows registry', [BplName]);
-        if TDBuildConfig.GetInstance.Failure.Error then
-        begin
-          ExitCode := 1;
-          raise;
-        end;
-      end;
-    end;
-  end;
-end;
-
-class procedure TPackageInstall.ReleaseIstance;
-begin
-  if FIsOpened then
-    FReg.CloseKey;
+  FReg.CloseKey;
   FReg.Free;
 end;
 
-initialization
+procedure TPackageInstall.BeforeExecute;
+const
+  PATH_KEY = 'Software\Embarcadero\BDS\%s\Known Packages';
+begin
+  try
+    FReg.RootKey := HKEY_CURRENT_USER;
+    FReg.OpenKey(Format(PATH_KEY, [TConfig.Instance.Compiler.Version]), True);
+  except
+    On E: Exception do
+      TConsole.ErrorFmt('Error on open windows registry [%s]', [E.message]);
+  end;
+  FFileName := Format('%s%s.bpl', [
+    IncludeTrailingPathDelimiter(TConfig.Instance.Compiler.BplOutput), FPackage.Name]);
+end;
 
-TPackageInstall.Initialize;
+function TPackageInstall.CanExecute: Boolean;
+begin
+  result := TDBuildParams.Install and FPackage.Installed;
+end;
 
-finalization
+procedure TPackageInstall.PrintResult;
+begin
+  TConsole.Output('');
+  if not FReg.ReadString(FFileName).Contains('not found') then
+    TConsole.Output(sResultArrow + 'INSTALATION SUCCESS', Green)
+  else
+  begin
+    TConsole.Output(Format(sBplNotFound, [FFileName]), Red);
+    TConsole.Output(sResultArrow + 'INSTALATION FAILED', Red);
+  end;
+  TConsole.Output('');
+end;
 
-TPackageInstall.ReleaseIstance;
+procedure TPackageInstall.Execute;
+begin
+  try
+    if not TDBuildParams.IsDebug then
+    begin
+      FReg.WriteString(FFileName, FPackage.Name);
+      PrintResult;
+    end;
+    TConsole.Debug('Install package', FReg.ReadString(FFileName));
+  except
+    TConsole.ErrorFmt('Error on write %s in windows registry', [FFileName]);
+  end;
+end;
 
 end.
+

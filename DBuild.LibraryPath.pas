@@ -1,92 +1,97 @@
 unit DBuild.LibraryPath;
-
+
 interface
 
 uses
-  Registry,
-  Windows,
-  SysUtils,
-  classes,
-  DBuild.Config;
+  Registry, Windows, SysUtils, DBuild.Interfaces, classes, DBuild.Config;
 
 type
-  IDelphiLibraryPath = Interface
-    ['{3803840C-BE04-40A4-B882-AE9B0728E67C}']
-    procedure Update;
-  End;
-
-  TDelphiLibraryPath = class(TInterfacedObject, IDelphiLibraryPath)
+  TDelphiLibraryPath = class(TInterfacedObject, IPackageAction)
   private
-    function GetUpdatedList: string;
+    FLibraryPath: TStringList;
+    FUpdated: boolean;
+    procedure Execute;
+    function CanExecute: boolean;
+    procedure AfterExecute;
+    procedure BeforeExecute;
   public
-    procedure Update;
-
-    class function New: IDelphiLibraryPath;
+    class function New: IPackageAction;
   end;
 
 implementation
 
 { TDelphiLibraryPath }
 
-uses DBuild.Console, DBuild.Utils;
+uses
+  Types, DBuild.Console, DBuild.Config.classes, DBuild.Params, DBuild.Resources;
 
-function TDelphiLibraryPath.GetUpdatedList: string;
-var
-  Paths: TStringList;
-  Path, FormtPath: string;
+class function TDelphiLibraryPath.New: IPackageAction;
 begin
-  Paths := TStringList.Create;
-  try
-    Paths.Delimiter := ';';
-    Paths.StrictDelimiter := True;
-
-    Paths.Add('$(BDSLIB)\$(Platform)\release');
-    Paths.Add('$(BDSUSERDIR)\Imports');
-    Paths.Add('$(DELPHI)\Imports');
-    Paths.Add('$(BDSCOMMONDIR)\Dcp');
-    Paths.Add('$(DELPHI)\include');
-
-    for Path in TDBuildConfig.GetInstance.LibraryPath.Values do
-    begin
-      FormtPath := FormatPath(Path);
-      Paths.Add(FormtPath);
-
-      TConsole.DebugInfo('Add LibraryPath = %s', [FormtPath]);
-    end;
-    Result := Paths.DelimitedText;
-  finally
-    Paths.Free;
-  end;
+  result := TDelphiLibraryPath.Create;
 end;
 
-class function TDelphiLibraryPath.New: IDelphiLibraryPath;
+procedure TDelphiLibraryPath.AfterExecute;
 begin
-  Result := TDelphiLibraryPath.Create;
+  if FUpdated then
+  begin
+    TConsole.Debug('Library path: ', FLibraryPath.DelimitedText);
+    TConsole.Output(sLibraryPathWasUpdated, Green);
+  end
+  else
+    TConsole.Output(sLibraryPathWasntUpdated, Red);
+
+  FLibraryPath.Free;
 end;
 
-procedure TDelphiLibraryPath.Update;
-const
-  LIBRARY_PATH_REG = '\Software\Embarcadero\BDS\%0:s\Library\%1:s';
+procedure TDelphiLibraryPath.BeforeExecute;
+begin
+  FUpdated := True;
+  FLibraryPath := TStringList.Create;
+  FLibraryPath.Delimiter := ';';
+  FLibraryPath.StrictDelimiter := True;
+  FLibraryPath.Duplicates := dupIgnore;
+end;
+
+function TDelphiLibraryPath.CanExecute: boolean;
+begin
+  result := TDBuildParams.UpdateLibraryPath;
+end;
+
+procedure TDelphiLibraryPath.Execute;
 var
   Reg: TRegistry;
   RegStr: string;
+  Package: TPackage;
 begin
   Reg := TRegistry.Create;
   try
-    RegStr := Format(LIBRARY_PATH_REG, [TDBuildConfig.GetInstance.Compiler.Version,
-      TDBuildConfig.GetInstance.Compiler.PlataformToStr]);
+    RegStr := Format(sLibraryPathWindowsRegistry, [
+      TConfig.Instance.Compiler.Version, TConfig.Instance.Compiler.Plataform]);
+
     if not Reg.OpenKey(RegStr, false) then
     begin
-      TConsole.PrintErrorResult('Can not find delphi instalation');
-      if TDBuildConfig.GetInstance.Failure.Error then
-      begin
-        ExitCode := 1;
-        raise EDBuildException.Create('Can not find delphi instalation');
-      end;
+      TConsole.Error(sCouldNotUpdateLibraryPath);
+      FUpdated := false;
+      exit;
     end;
 
-    Reg.WriteString('Search Path', GetUpdatedList);
-    TConsole.PrintOkResult('LibraryPath was updated');
+    FLibraryPath.Add('$(BDSLIB)\$(Platform)\release');
+    FLibraryPath.Add('$(BDSUSERDIR)\Imports');
+    FLibraryPath.Add('$(DELPHI)\Imports');
+    FLibraryPath.Add('$(BDSCOMMONDIR)\Dcp');
+    FLibraryPath.Add('$(DELPHI)\include');
+    FLibraryPath.AddStrings(TConfig.Instance.LibraryPath);
+
+    for Package in TConfig.Instance.Packages do
+    begin
+      if Package.Name.isEmpty or not Package.LibraryPath then
+        continue;
+
+      FLibraryPath.AddStrings(Package.Source);
+    end;
+
+    if not TDBuildParams.IsDebug then
+      Reg.WriteString('Search Path', FLibraryPath.DelimitedText);
   finally
     Reg.CloseKey;
     Reg.Free;
@@ -94,3 +99,4 @@ begin
 end;
 
 end.
+

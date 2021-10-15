@@ -1,11 +1,16 @@
 unit DBuild.Console;
-
+
 interface
+
+uses
+  Generics.Collections, DBuild.Config.Classes;
 
 type
   TConsoleColor = (Normal, Red, Blue, Green);
 
   TConsole = Record
+  public const
+    LINE_LEN = 70;
   public
     class procedure Banner; static;
     class procedure Output(const AText: string; const AColor: TConsoleColor = Normal); static;
@@ -14,17 +19,15 @@ type
     class procedure ErrorFmt(const AText: string; AParams: Array of const); static;
     class procedure Write(const AText: string); static;
     class procedure WriteFmt(const AText: string; AParams: Array of const); static;
-    class procedure Line; static;
-    class procedure PrintErrorResult(const AText: string); static;
-    class procedure PrintOkResult(const AText: string); static;
-    class procedure PrintBuildResult(const AWarn, AErrors: Integer; ATime: TDateTime); static;
-    class procedure DebugInfo(const AText: string; AParams: Array of const); static;
+    class procedure Debug(const ATitle: string; const AText: string); static;
+
+    class procedure PrintResult; static;
   end;
 
 implementation
 
 Uses
-  System.SysUtils, winapi.windows, DBuild.Utils, DBuild.Params, DBuild.Config;
+  System.SysUtils, IOUtils, WinAPI.windows, DBuild.Config, DBuild.Params, DBuild.Statistics, DBuild.Resources, DBuild.Utils;
 
 { TConsole }
 
@@ -36,12 +39,6 @@ end;
 class procedure TConsole.ErrorFmt(const AText: string; AParams: array of const);
 begin
   Error(Format(AText, AParams));
-end;
-
-class procedure TConsole.Line;
-begin
-  TConsole.Output('**********************************************************************');
-  TConsole.Output('');
 end;
 
 class procedure TConsole.Output(const AText: string; const AColor: TConsoleColor);
@@ -83,53 +80,47 @@ end;
 
 class procedure TConsole.Banner;
 begin
-  TConsole.Write('**********************************************************************');
-  TConsole.Write('*        DBuild - Version 1.2 - (c) 2021 - Juliano Eichelberger      *');
-  TConsole.Write('*                                                                    *');
-  TConsole.Write('*        License - http://www.apache.org/licenses/LICENSE-2.0        *');
-  TConsole.Write('**********************************************************************');
+  TConsole.Output(sLine, Green);
+  TConsole.Output(sCopyrights, Green);
+  TConsole.Output(sLine2, Green);
+  TConsole.Output(sLicenseInfo, Green);
+  TConsole.Output(sLine2, Green);
+  TConsole.Output(RPad(sHeadPlataform, [TConfig.Instance.Compiler.Plataform], LINE_LEN, ' ') + '*', Green);
+  TConsole.Output(RPad(sHeadDelphiVersion, [TConfig.Instance.Compiler.Version], LINE_LEN, ' ') + '*', Green);
+  TConsole.Output(RPad(sHeadConfig, [TConfig.Instance.Compiler.Config], LINE_LEN, ' ') + '*', Green);
+  TConsole.Output(RPad(sHeadTarget, [TConfig.Instance.Compiler.Action], LINE_LEN, ' ') + '*', Green);
+  TConsole.Output(RPad(sMSBuild, [TConfig.Instance.Compiler.MSBuild], LINE_LEN, ' ') + '*', Green);
+  TConsole.Output(sLine2, Green);
+  TConsole.Output(sLine, Green);
   TConsole.Write('');
-  TConsole.DebugInfo('Rootdir = %s', [GetRootDir]);
 end;
 
-class procedure TConsole.DebugInfo(const AText: string; AParams: array of const);
+class procedure TConsole.Debug(const ATitle: string; const AText: string);
 begin
-  if TDBuildParams.IsDebug then
-    TConsole.Output('DEBUG: ' + Format(AText, AParams), Blue);
+  if not TDBuildParams.IsDebug then
+    exit;
+
+  TConsole.Output(RPad('-------- %s ', [ATitle], LINE_LEN + 1, '-'), Red);
+  System.Writeln(AText);
+  TConsole.Output(RPad('--------', [''], LINE_LEN + 1, '-'), Red);
 end;
 
-class procedure TConsole.PrintOkResult(const AText: string);
-begin
-  TConsole.Output('**********************************************************************', Green);
-  TConsole.Output(Format(' %s                                          ', [AText]), Green);
-  TConsole.Output('**********************************************************************', Green);
-end;
-
-class procedure TConsole.PrintBuildResult(const AWarn, AErrors: Integer; ATime: TDateTime);
+class procedure TConsole.PrintResult;
 var
   Col: TConsoleColor;
 begin
   Col := Green;
-  if AErrors > 0 then
+  if TStatistic.Data.ErrorsCount > 0 then
     Col := Red;
 
-  TConsole.Output('**********************************************************************', Col);
-  TConsole.Output(' DBuild output result                                            ', Col);
-  TConsole.Output('');
-  TConsole.Output(Format(' %d hints/warnings found     ', [AWarn]), Col);
-  TConsole.Output(Format(' %d erro(s) found            ', [AErrors]), Col);
-  TConsole.Output(Format(' %s duration                 ', [FormatDateTime('hh:mm:ss', ATime)]), Col);
-  TConsole.Output('');
-  TConsole.Output('**********************************************************************', Col);
-end;
-
-class procedure TConsole.PrintErrorResult(const AText: string);
-begin
-  TConsole.Output('**********************************************************************', Red);
-  TConsole.Output(Format(' %s', [AText]), Red);
-  TConsole.Output('**********************************************************************', Red);
-  if TDBuildConfig.GetInstance.Failure.Error then
-    ExitCode := 1;
+  TConsole.Output(RPad(sDBuildResultDelimiter, [TConfig.Instance.Compiler.Action.toUpper], LINE_LEN + 1, '*'), Col);
+  TConsole.Output(sLine2, Col);
+  TConsole.Output(RPad(sResultHintsWarns, [TStatistic.Data.WarningsCount], LINE_LEN, ' ') + '*', Col);
+  TConsole.Output(RPad(sResultErrors, [TStatistic.Data.ErrorsCount], LINE_LEN, ' ') + '*', Col);
+  TConsole.Output(RPad(sResultDuration, [TStatistic.Data.TotalTime], LINE_LEN, ' ') + '*', Col);
+  TConsole.Output(sLine2, Col);
+  TConsole.Output(RPad(sDBuildResultDelimiter, [TConfig.Instance.Compiler.Action.toUpper], LINE_LEN + 1, '*'), Col);
 end;
 
 end.
+

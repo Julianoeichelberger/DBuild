@@ -1,20 +1,14 @@
 unit DBuild.Framework;
-
+
 interface
 
 uses
-  SysUtils,
-  DBuild.Config,
-  DBuild.Console,
-  DBuild.LibraryPath,
-  DBuild.Package.Compile,
-  DBuild.Package.Install,
-  DBuild.Params;
+  SysUtils, DBuild.Config, DBuild.Console, DBuild.Params;
 
 type
   TDBuild = class
   private
-    function ValidatedParams: Boolean;
+    class procedure Validate;
   public
     class procedure Execute;
   end;
@@ -22,66 +16,46 @@ type
 implementation
 
 Uses
-  IOUtils, DBuild.Output;
+  Registry, Windows, IOUtils, DBuild.Utils, DBuild.Config.Classes, DBuild.Package.Factory, DBuild.Resources;
 
 { TDBuild }
 
-function TDBuild.ValidatedParams: Boolean;
+class procedure TDBuild.Validate;
 begin
-  Result := False;
   if not TFile.Exists(TDBuildParams.ConfigFileName) then
-  begin
-    TConsole.PrintErrorResult(format('configuration file %s not found', [TDBuildParams.ConfigFileName]));
-    ExitCode := 1;
-    exit;
-  end;
+    raise EDBuildException.Create(format(sConfigFileNotFound, [TDBuildParams.ConfigFileName]));
 
-  try
-    TDBuildConfig.GetInstance.LoadConfig;
-  except
-    TConsole.PrintErrorResult(format('Invalid configuration file %s', [TDBuildParams.ConfigFileName]));
-    ExitCode := 1;
-    exit;
-  end;
+  if TConfig.Instance = nil then
+    raise EDBuildException.Create(format(sInvalidConfigFile, [TDBuildParams.ConfigFileName]));
 
-  if not TFile.Exists(TDBuildConfig.GetInstance.Compiler.MSBuild) then
-  begin
-    TConsole.PrintErrorResult('MSBuild not found');
-    ExitCode := 1;
-    exit;
-  end;
-  Result := True;
+  if not TFile.Exists(TConfig.Instance.Compiler.MSBuild) then
+    raise EDBuildException.Create(sMSBuildNotFound);
 end;
 
 class procedure TDBuild.Execute;
-var
-  Build: TDBuild;
-  Pack: TPackage;
 begin
-  TConsole.Banner;
-  Build := TDBuild.Create;
   try
-    if not Build.ValidatedParams then
-      exit;
-
-    if TDBuildParams.UpdateLibraryPath then
-      TDelphiLibraryPath.New.Update;
-
-    if not TDBuildParams.Enabled then
-      exit;
-    for Pack in TDBuildConfig.GetInstance.Packages do
-    begin
-      TPackageCompile.Exec(Pack);
-      // if TDBuildConfig.GetInstance.Log.Level = OutputFile then
-      // begin
-      // end;
-      if Pack.Installed then
-        TPackageInstall.RegisterBPL(Pack);
+    try
+      TDBuild.Validate;
+      TConsole.Banner;
+      TPackageFactory.New.Execute;
+      TConsole.PrintResult;
+    except
+      on E: Exception do
+      begin
+        ExitCode := 1;
+        TConsole.Error(E.Message);
+      end;
     end;
-    TDBuildOutput.ShowResult;
   finally
-    Build.Free;
+    if not TDBuildParams.IsCI then
+    begin
+      TConsole.Write('');
+      TConsole.Write(sPressToExit);
+      Readln;
+    end
   end;
 end;
 
 end.
+

@@ -59,18 +59,21 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.2.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <DCC_UnitSearchPath>3rd\Neslib;3rd\Neslib.Yaml;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;dxBarRS26;vclFireDAC;dxPScxExtCommonRS26;emsclientfiredac;DataSnapFireDAC;svnui;tethering;FireDACADSDriver;DBXMSSQLDriver;dxPSdxSpreadSheetLnkRS26;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;dxPScxVGridLnkRS26;vcltouch;vcldb;bindcompfmx;svn;DBXOracleDriver;inetdb;dxBarDBNavRS26;FmxTeeUI;emsedge;dxGDIPlusRS26;FireDACIBDriver;fmx;fmxdae;dxServerModeRS26;dxPSLnksRS26;FireDACDBXDriver;dbexpress;IndyCore;cxGridRS26;dxComnRS26;xdata;vclx;dxPsPrVwAdvRS26;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;soapserver;cxVerticalGridRS26;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;CloudService;FireDACMySQLDriver;DBXFirebirdDriver;dxPSdxLCLnkRS26;dxmdsRS26;FireDACCommonODBC;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;cxPivotGridRS26;tmsbcl;IndySystem;sparkle;FireDACDb2Driver;ZSCustomControls;dsnapcon;dxPScxPivotGridLnkRS26;cxTreeListRS26;dxPScxPCProdRS26;dxPSCoreRS26;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;dxCoreRS26;TeeDB;FireDAC;cxExportRS26;dxBarExtItemsRS26;dxSpreadSheetRS26;emshosting;dxPSPrVwRibbonRS26;tmsdXE12;FireDACSqliteDriver;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxPivotGridChartRS26;soaprtl;DbxCommonDriver;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;emsserverresource;DbxClientDriver;tmsexdXE12;DBXSybaseASADriver;cxLibraryRS26;CustomIPTransport;vcldsnap;ZSControlsCustomFrames;bindcomp;appanalytics;DBXInformixDriver;dxRibbonCustomizationFormRS26;TMSLoggingPkgVCLDXE12;IndyIPClient;ZSDialogs;bindcompvcl;TMSLoggingPkgCoreDXE12;TeeUI;dbxcds;VclSmp;adortl;FireDACODBCDriver;ZSControls;dxRibbonRS26;DataSnapIndy10ServerTransport;dxPScxCommonRS26;aurelius;dxSpreadSheetCoreDialogsRS26;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;dxPScxGridLnkRS26;dxSpreadSheetCoreRS26;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <Manifest_File>.\DBuild.Manifest</Manifest_File>
+        <Manifest_File>DBuild.Manifest</Manifest_File>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;dxBarRS26;vclFireDAC;dxPScxExtCommonRS26;emsclientfiredac;DataSnapFireDAC;tethering;FireDACADSDriver;DBXMSSQLDriver;dxPSdxSpreadSheetLnkRS26;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;dxPScxVGridLnkRS26;vcltouch;vcldb;bindcompfmx;DBXOracleDriver;inetdb;FmxTeeUI;emsedge;dxGDIPlusRS26;FireDACIBDriver;fmx;fmxdae;dxServerModeRS26;dxPSLnksRS26;FireDACDBXDriver;dbexpress;IndyCore;cxGridRS26;dxComnRS26;xdata;vclx;dxPsPrVwAdvRS26;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;soapserver;cxVerticalGridRS26;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;CloudService;FireDACMySQLDriver;DBXFirebirdDriver;dxPSdxLCLnkRS26;dxmdsRS26;FireDACCommonODBC;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;cxPivotGridRS26;tmsbcl;IndySystem;sparkle;FireDACDb2Driver;dsnapcon;dxPScxPivotGridLnkRS26;cxTreeListRS26;dxPScxPCProdRS26;dxPSCoreRS26;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;dxCoreRS26;TeeDB;FireDAC;cxExportRS26;dxSpreadSheetRS26;emshosting;dxPSPrVwRibbonRS26;tmsdXE12;FireDACSqliteDriver;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxPivotGridChartRS26;soaprtl;DbxCommonDriver;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;emsserverresource;DbxClientDriver;tmsexdXE12;DBXSybaseASADriver;cxLibraryRS26;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;TMSLoggingPkgVCLDXE12;IndyIPClient;bindcompvcl;TMSLoggingPkgCoreDXE12;TeeUI;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dxPScxCommonRS26;aurelius;dxSpreadSheetCoreDialogsRS26;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;dxPScxGridLnkRS26;dxSpreadSheetCoreRS26;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
@@ -80,21 +83,22 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
+        <VerInfo_Debug>true</VerInfo_Debug>
+        <DCC_Optimize>false</DCC_Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>(None)</Manifest_File>
-        <Debugger_RunParams>-lp -b -cfg &quot;D:\zone\project\DBuild.json&quot;</Debugger_RunParams>
+        <Debugger_RunParams>-b -debug</Debugger_RunParams>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -103,7 +107,6 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
@@ -116,11 +119,17 @@
         <DCCReference Include="DBuild.Config.pas"/>
         <DCCReference Include="DBuild.Console.pas"/>
         <DCCReference Include="DBuild.Package.Install.pas"/>
-        <DCCReference Include="DBuild.Utils.pas"/>
         <DCCReference Include="DBuild.Package.Compile.pas"/>
+        <DCCReference Include="DBuild.Package.Factory.pas"/>
+        <DCCReference Include="DBuild.Package.Metrics.pas"/>
+        <DCCReference Include="DBuild.Utils.pas"/>
         <DCCReference Include="DBuild.LibraryPath.pas"/>
         <DCCReference Include="DBuild.Framework.pas"/>
-        <DCCReference Include="DBuild.Output.pas"/>
+        <DCCReference Include="DBuild.Config.Classes.pas"/>
+        <DCCReference Include="DBuild.Interfaces.pas"/>
+        <DCCReference Include="DBuild.Resources.pas"/>
+        <DCCReference Include="DBuild.Path.pas"/>
+        <DCCReference Include="DBuild.Statistics.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -142,9 +151,17 @@
                     <Source Name="MainSource">DBuild.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\21.0\Bpl\OverbyteIcsD104Design.bpl">Overbyte ICS VCL Design-Time Package for Delphi 10.4</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k270.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp270.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\ZSView.bpl">Zonesoft - Views</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\ZSSystem.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\ZSSystem.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceCustomer.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceCustomer.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceTarget.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceTarget.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceTill.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceTill.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoicePayment.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoicePayment.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceDocument.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceDocument.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceItem.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\InvoiceItem.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\USER\Documents\zs-new/bin/bpl\FrontOffice.bpl">File C:\Users\USER\Documents\zs-new/bin/bpl\FrontOffice.bpl not found</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
