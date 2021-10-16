@@ -3,7 +3,7 @@ unit DBuild.Resources;
 interface
 
 resourcestring
-  sMetricsCommand = 'AuditsCLI.exe --metrics --%0:s -o "%1:s%2:s.%0:s" -u "%3:s" "%4:s" ';
+  sMetricsCommand = 'AuditsCLI.exe --metrics --%0:s -o"%1:s%2:s.%0:s" -u"%3:s" "%4:s" ';
   sMetricsSourceNotFound = 'Metrics aren''t available if projects.%s.source is empty';
   sStartMetrics = 'Starting to collect metrics...';
   sCouldNotUpdateLibraryPath = 'Could not update librarypath. Delphi installation is missing';
@@ -15,9 +15,9 @@ resourcestring
   sWereFoundErrors = 'Were found %d error(s)';
   sRexExGetHintWarningsCount = '([0-9])+';
   sMSBuildCommand =
-    'MSBuild.exe /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
+    '%FrameworkDir%\MSBuild.exe /p:platform=%s /t:%s /p:config=%s /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" %s "%s"';
   sMSBuildLogCommand = '/v:Minimal /flp:logfile=%s%s.log ';
-  sDelphiEnvVariablesCommand = 'call "%sBin\rsvars.bat"';
+  sDelphiEnvVariablesCommand = '%sBin\rsvars.bat';
   sConfigFileNotFound = 'configuration file %s not found';
   sInvalidConfigFile = 'Invalid configuration file %s';
   sMSBuildNotFound = 'MSBuild not found';
@@ -25,10 +25,10 @@ resourcestring
   sSuccessBuildpt_BR = 'compilação com êxito.';
   sSuccessBuildpt_PT = 'compilação efectuada com êxito.';
   sFailedBuildpt = 'falha da compilação.';
-  sStartPackage = '******************* START %s ';
-  sEndPackage = '********************* END %s ';
+  sStartPackage = '******************* Start %s ';
+  sEndPackage = '********************* End %s ';
   sLine = '***********************************************************************';
-  sLine2 = '*                                                                      *';
+  sLine2 = '*                                                                     *';
   sResultArrow = '  -----> ';
   sOutputMetricsFileNotFound = '  It wasn''t possible generate %s on metrics execution!';
   sBplNotFound = '%s not found on instalation!';

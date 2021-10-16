@@ -3,14 +3,13 @@ unit DBuild.Package.Compile;
 interface
 
 uses
-  Classes, DBuild.Interfaces, DBuild.Config, DBuild.Config.Classes, DBuild.Statistics;
+  Classes, DBuild.Interfaces, DBuild.Config.Classes, DBuild.Statistics;
 
 type
   TPackageCompile = class(TInterfacedObject, IPackageAction)
   strict private
     FPackage: TPackage;
     FFileName: string;
-    FOutputLog: string;
     function CreateDefaultBatFile: string;
     procedure Execute;
     function CanExecute: boolean;
@@ -26,7 +25,7 @@ implementation
 
 Uses
   Vcl.Forms, Registry, Windows, SysUtils, DateUtils, IOUtils, ShellAPI, DBuild.Utils, DBuild.Console,
-  DBuild.Params, DBuild.Path, DBuild.Resources;
+  DBuild.Config, DBuild.Params, DBuild.Path, DBuild.Resources;
 
 { TPackageCompile }
 
@@ -42,7 +41,7 @@ end;
 
 procedure TPackageCompile.Execute;
 begin
-  RunCmd(FOutputLog, FFileName);
+  RunCmdAndWait(FFileName);
 end;
 
 procedure TPackageCompile.PrintResult(const Status: TBuildStatus);
@@ -59,11 +58,24 @@ end;
 procedure TPackageCompile.AfterExecute;
 var
   Status: TBuildStatus;
+  LogFile: TStringList;
+  FileName: string;
 begin
-  Status := TStatistic.EndPackage(FPackage, FOutputLog);
-  PrintResult(Status);
-  // TDBuildOutput.TryCloseBuild(FPackage, FOutputLog);
+  Status := TBuildStatus.Unknown;
+  LogFile := TStringList.Create;
+  try
+    FileName := IncludeTrailingPathDelimiter(
+      TDBUildPath.New.Format(TConfig.Instance.Compiler.LogOutput)) + FPackage.Name + '.log';
+    if TFile.Exists(FileName) then
+    begin
+      LogFile.LoadFromFile(FileName);
+      Status := TStatistic.EndPackage(FPackage, LogFile.Text);
+    end;
+  finally
+    LogFile.Free;
+  end;
 
+  PrintResult(Status);
   if TFile.Exists(FFileName) then
     TFile.Delete(FFileName);
 
@@ -87,28 +99,30 @@ begin
 end;
 
 function TPackageCompile.CreateDefaultBatFile: string;
+const
+  CMD =
+    '%s\MSBuild.exe "%s" ' +
+    ' /t:%s /p:platform=%s /p:config=%s ' +
+    ' /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" ' +
+    ' /p:DCC_BuildAllUnits=true /v:Minimal /flp:logfile="%s%s.log" ';
 var
-  ExecCommand, LogCommnad: string;
+  ExecCommand: string;
   BatFile: TStringList;
 begin
   BatFile := TStringList.Create;
   try
-    BatFile.Add(Format(sDelphiEnvVariablesCommand, [TConfig.DelphiInstalationPath]));
-    BatFile.Add('');
-    BatFile.Add(Format('cd "%s"', [TPath.GetDirectoryName(TConfig.Instance.Compiler.MSBuild)]));
+    BatFile.LoadFromFile(Format(sDelphiEnvVariablesCommand, [TConfig.DelphiInstalationPath]));
 
-    LogCommnad := Format(sMSBuildLogCommand, [
-      IncludeTrailingPathDelimiter(TDBUildPath.New.Format(TConfig.Instance.Compiler.LogOutput)), FPackage.Name]);
-
-    ExecCommand := Format(sMSBuildCommand, [
-      TConfig.Instance.Compiler.Plataform,
+    ExecCommand := Format(CMD, ['%FrameworkDir%',
+      FPackage.Project,
       TConfig.Instance.Compiler.Action,
+      TConfig.Instance.Compiler.Plataform,
       TConfig.Instance.Compiler.Config,
       TConfig.Instance.Compiler.BplOutput,
       TConfig.Instance.Compiler.DcuOutput,
       TConfig.Instance.Compiler.DcpOutput,
-      LogCommnad,
-      FPackage.Project]);
+      IncludeTrailingPathDelimiter(TDBUildPath.New.Format(TConfig.Instance.Compiler.LogOutput)),
+      FPackage.Name]);
 
     BatFile.Add(TDBUildPath.New.FormatEnvToBatFile(ExecCommand));
     TConsole.Debug('Compile command', BatFile.Text);

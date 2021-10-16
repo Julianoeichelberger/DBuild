@@ -18,7 +18,7 @@ const
 type
   EDBuildException = class(Exception);
 
-procedure RunCmd(var ALogOutput: string; const ACommand: string);
+procedure RunCmdAndWait(const ACommand: string);
 function RPad(AStr: string; AParams: array of const; ALen: Integer; AChar: Char): string;
 
 implementation
@@ -31,7 +31,7 @@ begin
 end;
 
 // https://stackoverflow.com/questions/9119999/getting-output-from-a-shell-dos-app-into-a-delphi-app
-procedure RunCmd(var ALogOutput: string; const ACommand: string);
+procedure RunCmdAndWait(const ACommand: string);
 const
   READ_BUFFER_SIZE = 2400;
 var
@@ -43,7 +43,6 @@ var
   BytesRead, AppRunning: DWORD;
   StartExe: TDateTime;
 begin
-  ALogOutput := '';
   Security.nLength := SizeOf(TSecurityAttributes);
   Security.bInheritHandle := True;
   Security.lpSecurityDescriptor := nil;
@@ -81,7 +80,7 @@ begin
         ReadFile(readableEndOfPipe, Buffer[0], READ_BUFFER_SIZE, BytesRead, nil);
         Buffer[BytesRead] := #0;
         OemToAnsi(Buffer, Buffer);
-        ALogOutput := String(Buffer);
+        // ALogOutput := String(Buffer);
       until (BytesRead < READ_BUFFER_SIZE);
     end;
     FreeMem(Buffer);

@@ -21,7 +21,7 @@ implementation
 
 Uses
   Neslib.Yaml,
-  Generics.Collections, Registry, Windows, IOUtils, SysUtils, Classes, DBuild.Params, DBuild.Path;
+  Generics.Collections, Registry, Windows, IOUtils, SysUtils, Classes, DBuild.Params, DBuild.Path, DBuild.Console;
 
 { TConfig }
 
@@ -35,7 +35,7 @@ begin
     Version := FInstance.Compiler.Version;
     FDelphiInstalationPath := TDBUildPath.New.DelphiInstalation(Version);
     FInstance.Compiler.Version := Version;
-    FInstance.Compiler.MSBuild := TDBUildPath.New.MsBuild(FDelphiInstalationPath, FInstance.Compiler.MSBuild);
+    FInstance.Compiler.MSBuild := TDBUildPath.New.MSBuild(FDelphiInstalationPath, FInstance.Compiler.MSBuild);
     TDirectory.CreateDirectory(TDBUildPath.New.Format(FInstance.Compiler.LogOutput));
   end;
   result := FInstance;
@@ -50,6 +50,7 @@ var
 begin
   result := TDBuildConfig.Create;
   try
+    TConsole.Debug('TYamlDocument.Load', TDBuildParams.ConfigFileName);
     Doc := TYamlDocument.Load(TDBuildParams.ConfigFileName);
     if Doc.Root.TryGetValue('compile', Node) and Node.IsMapping then
     begin
@@ -65,7 +66,10 @@ begin
     if Doc.Root.TryGetValue('libraryPath', Node) and Node.IsSequence then
     begin
       for I := 0 to Node.Count - 1 do
+      begin
         result.LibraryPath.Add(Node.Nodes[I].ToString(''));
+        TConsole.Debug('LibraryPath.item', Node.Nodes[I].ToString(''));
+      end;
     end;
     if Doc.Root.TryGetValue('projects', Node) and Node.IsMapping then
     begin
@@ -87,11 +91,13 @@ begin
 
         Package.LibraryPath := Node.Elements[I].Value.Values['librarypath'].toBoolean;
 
-        if Doc.Root.TryGetValue('source', SourceNode) and SourceNode.IsSequence then
+        if Node.TryGetValue(Package.Name, SourceNode) and
+          SourceNode.TryGetValue('source', SourceNode) and SourceNode.IsSequence then
         begin
           for L := 0 to SourceNode.Count - 1 do
-            Package.Source.Add(SourceNode.Nodes[L].ToString(''));
+            Package.Source.Add(SourceNode.Nodes[L].ToString);
         end;
+        TConsole.Debug(Package.Name + '/source', Package.Source.Text);
         result.AddPackage(Package);
       end;
     end;

@@ -61,7 +61,7 @@ end;
 
 function TDataStatistic.TotalTime: string;
 begin
-  FormatDateTime('hh:mm:ss', Now - FTotalTime);
+  Result := FormatDateTime('hh:mm:ss', Now - FTotalTime);
 end;
 
 { TStatistic }

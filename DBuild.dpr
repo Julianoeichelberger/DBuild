@@ -5,11 +5,6 @@ program DBuild;
 
 
 uses
-  madExcept,
-  madLinkDisAsm,
-  madListHardware,
-  madListProcesses,
-  madListModules,
   System.SysUtils,
   System.Classes,
   DBuild.Params in 'DBuild.Params.pas',

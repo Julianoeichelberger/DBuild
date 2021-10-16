@@ -10,7 +10,6 @@ type
   private
     FPackage: TPackage;
     FFileName: string;
-    FOutputLog: string;
     function CreateDefaultBatFile: string;
     procedure Execute;
     function CanExecute: Boolean;
@@ -44,9 +43,6 @@ end;
 
 procedure TPackageMetrics.AfterExecute;
 begin
-  if not FOutputLog.IsEmpty then
-    TConsole.Output(FOutputLog);
-
   PrintResult;
 end;
 
@@ -102,7 +98,7 @@ end;
 
 procedure TPackageMetrics.Execute;
 begin
-  RunCmd(FOutputLog, FFileName);
+  RunCmdAndWait(FFileName);
 end;
 
 end.
