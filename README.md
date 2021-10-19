@@ -8,7 +8,9 @@ Param -lp  you can reset the delphi librarypath;
 
 Param -b   you'll make the build of the projects defined in DBuild.json;
 
-param -1 to install packages
+param -i to install packages
+
+param -m to generate metrics
 
 Param -ci  Execute in continuoes integration mode (without waiting for command);
 
