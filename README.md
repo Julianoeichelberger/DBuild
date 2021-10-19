@@ -12,4 +12,4 @@ param -1 to install packages
 
 Param -ci  Execute in continuoes integration mode (without waiting for command);
 
-Param -cfg It's for specify the configuration file directory "c:/DBuild.json". Defaults it's the same path of the DBuild.exe.
+Param -cfg It's for specify the configuration file directory "c:/DBuild.yaml". Defaults it's the same path of the DBuild.exe.
