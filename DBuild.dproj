@@ -115,8 +115,9 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="DBuild.Params.pas"/>
-        <DCCReference Include="DBuild.Config.pas"/>
         <DCCReference Include="DBuild.Console.pas"/>
+        <DCCReference Include="DBuild.Config.pas"/>
+        <DCCReference Include="DBuild.Config.Classes.pas"/>
         <DCCReference Include="DBuild.Package.Install.pas"/>
         <DCCReference Include="DBuild.Package.Compile.pas"/>
         <DCCReference Include="DBuild.Package.Factory.pas"/>
@@ -124,11 +125,11 @@
         <DCCReference Include="DBuild.Utils.pas"/>
         <DCCReference Include="DBuild.LibraryPath.pas"/>
         <DCCReference Include="DBuild.Framework.pas"/>
-        <DCCReference Include="DBuild.Config.Classes.pas"/>
         <DCCReference Include="DBuild.Interfaces.pas"/>
         <DCCReference Include="DBuild.Resources.pas"/>
         <DCCReference Include="DBuild.Path.pas"/>
         <DCCReference Include="DBuild.Statistics.pas"/>
+        <DCCReference Include="DBuild.ShellExecute.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

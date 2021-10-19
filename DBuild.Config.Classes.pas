@@ -11,7 +11,6 @@ type
     FVersion: string;
     FPlataform: string;
     FAction: string;
-    FmsBuild: string;
     FConfig: string;
     FBplOutput: string;
     FDcuOutput: string;
@@ -35,7 +34,6 @@ type
     property DcuOutput: string read FDcuOutput write SetDcuOutput;
     property DcpOutput: string read FDcpOutput write SetDcpOutput;
     property LogOutput: string read FLogOutput write SetLogOutput;
-    property MSBuild: string read FmsBuild write FmsBuild;
   end;
 
   TPackage = Record
@@ -135,30 +133,31 @@ end;
 
 procedure TCompiler.SetBplOutput(const Value: string);
 begin
-  FBplOutput := TDBUildPath.New.Format(Value, false);
-  if FBplOutput.IsEmpty then
-    FBplOutput := TDBUildPath.New.Format(DEFAULT_BPL_OUTPUT_PATH, false);
+  FBplOutput := TDBUildPath.New.FormatSlash(Value);
+  if not FBplOutput.IsEmpty then
+    FBplOutput := IncludeTrailingPathDelimiter(FBplOutput);
 end;
 
 procedure TCompiler.SetDcpOutput(const Value: string);
 begin
-  FDcpOutput := TDBUildPath.New.Format(Value, false);
+  FDcpOutput := TDBUildPath.New.FormatSlash(Value);
   if FDcpOutput.IsEmpty then
-    FDcpOutput := TDBUildPath.New.Format(DEFAULT_DCP_OUTPUT_PATH, false);
+    FDcpOutput := DEFAULT_DCP_OUTPUT_PATH;
 end;
 
 procedure TCompiler.SetDcuOutput(const Value: string);
 begin
-  FDcuOutput := TDBUildPath.New.Format(Value, false);
+  FDcuOutput := TDBUildPath.New.FormatSlash(Value);
   if FDcuOutput.IsEmpty then
-    FDcuOutput := TDBUildPath.New.Format(DEFAULT_DCU_OUTPUT_PATH, false);
+    FDcuOutput := DEFAULT_DCU_OUTPUT_PATH;
 end;
 
 procedure TCompiler.SetLogOutput(const Value: string);
 begin
-  FLogOutput := TDBUildPath.New.Format(Value, false);
+  FLogOutput := TDBUildPath.New.FormatSlash(Value);
   if FLogOutput.IsEmpty then
-    FLogOutput := TDBUildPath.New.Format(TDBUildPath.New.DefaultOutputLogs, false);
+    FLogOutput := TDBUildPath.New.DefaultOutputLogs;
+  FLogOutput := IncludeTrailingPathDelimiter(FLogOutput);
 end;
 
 { TPackage }
@@ -182,12 +181,12 @@ end;
 
 function TPackage.Project: string;
 begin
-  Result := Format('%s%s.dproj', [FPath, FName]);
+  Result := Format('%s%s.dproj', [TDBUildPath.New.ReplaceEnvToValues(FPath), FName]);
 end;
 
 procedure TPackage.SetPath(const Value: string);
 begin
-  FPath := IncludeTrailingPathDelimiter(TDBUildPath.New.Format(Value));
+  FPath := IncludeTrailingPathDelimiter(TDBUildPath.New.FormatSlash(Value));
 end;
 
 procedure TPackage.SetPlataform(const Value: string);
@@ -213,7 +212,7 @@ end;
 
 procedure TMetrics.SetOutputPath(const Value: string);
 begin
-  FOutputPath := TDBUildPath.New.Format(Value);
+  FOutputPath := TDBUildPath.New.FormatSlash(Value);
   if FOutputPath.IsEmpty then
     FOutputPath := TDBUildPath.New.DefaultOutputMetrics;
   FOutputPath := IncludeTrailingPathDelimiter(FOutputPath);

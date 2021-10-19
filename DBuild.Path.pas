@@ -10,9 +10,9 @@ type
   private
     function RootDir: string;
     function DelphiInstalation(var AVersion: string): string;
-    function MsBuild(const ADelphiInstallPath: string; const AMSBuildDir: string): string;
-    function Format(const APath: string; AEnvs: boolean = True): string;
-    function FormatEnvToBatFile(const APath: string): string;
+    function FormatSlash(const APath: string): string;
+    function FormatEnvToBatFormat(const APath: string): string;
+    function ReplaceEnvToValues(const APath: string): string;
     function DefaultOutputLogs: string;
     function DefaultOutputMetrics: string;
   public
@@ -23,6 +23,8 @@ implementation
 
 
 { TDBUildPath }
+
+uses DBuild.Console;
 
 function TDBUildPath.DefaultOutputLogs: string;
 begin
@@ -89,65 +91,58 @@ begin
   end;
 end;
 
-function TDBUildPath.Format(const APath: string; AEnvs: boolean): string;
+function TDBUildPath.FormatEnvToBatFormat(const APath: string): string;
+const
+  REG_EX = '(?<=\$\()(.*?)(\))';
+var
+  MathRes: TMatch;
+  VarName: string;
+begin
+  Result := APath;
+  while (Result.IndexOf('$') > -1) do
+  begin
+    MathRes := TRegEx.Match(Result, REG_EX);
+    if MathRes.Success and (MathRes.Groups.count > 0) then
+    begin
+      VarName := StringReplace(StringReplace(
+        MathRes.Groups.Item[1].Value, '(', '', []), ')', '', []);
+      Result := StringReplace(Result,
+        SysUtils.Format('$(%s)', [VarName]), '%' + VarName + '%', [rfReplaceAll, rfIgnoreCase]);
+    end;
+  end;
+end;
+
+function TDBUildPath.FormatSlash(const APath: string): string;
+begin
+  Result := StringReplace(APath, '/', '\', [rfReplaceAll]);
+end;
+
+class function TDBUildPath.New: IPaths;
+begin
+  Result := TDBUildPath.Create;
+end;
+
+function TDBUildPath.ReplaceEnvToValues(const APath: string): string;
 const
   REG_EX = '(?<=\$\()(.*?)(\))';
 var
   MathRes: TMatch;
   VarName, VarValue: string;
 begin
-  Result := StringReplace(APath, '/', '\', [rfReplaceAll]);
-  if not AEnvs then
-    exit;
+  Result := APath;
   while (Result.IndexOf('$') > -1) do
   begin
     MathRes := TRegEx.Match(Result, REG_EX);
     if MathRes.Success and (MathRes.Groups.count > 0) then
     begin
-      VarName := MathRes.Groups.Item[1].Value;
+      VarName := StringReplace(StringReplace(
+        MathRes.Groups.Item[1].Value, '(', '', []), ')', '', []);
+
       VarValue := GetEnvironmentVariable(VarName);
       Result := StringReplace(Result,
         SysUtils.Format('$(%s)', [VarName]), VarValue, [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
-end;
-
-function TDBUildPath.FormatEnvToBatFile(const APath: string): string;
-begin
-  Result := StringReplace(APath, '$(', '%', [rfReplaceAll]);
-  Result := StringReplace(Result, ')', '%', [rfReplaceAll]);
-end;
-
-function TDBUildPath.MsBuild(const ADelphiInstallPath, AMSBuildDir: string): string;
-const
-  MsBuild = 'MSBuild.exe';
-var
-  FileBat: TStringList;
-  FileName: string;
-  Idx: Integer;
-begin
-  Result := AMSBuildDir;
-  if Result.IsEmpty then
-    Result := RootDir + MsBuild;
-
-  FileName := IncludeTrailingPathDelimiter(ADelphiInstallPath) + 'Bin\rsvars.bat';
-  if not TFile.Exists(Result) and TFile.Exists(FileName) then
-  begin
-    FileBat := TStringList.Create;
-    try
-      FileBat.LoadFromFile(FileName);
-      FileBat.Find('@SET FrameworkDir=', Idx);
-      if Idx > -1 then
-        Result := IncludeTrailingPathDelimiter(FileBat.Strings[Idx].Split(['='])[1]) + MsBuild;
-    finally
-      FileBat.Free;
-    end;
-  end;
-end;
-
-class function TDBUildPath.New: IPaths;
-begin
-  Result := TDBUildPath.Create;
 end;
 
 function TDBUildPath.RootDir: string;

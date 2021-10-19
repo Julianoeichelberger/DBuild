@@ -9,9 +9,10 @@ type
   TPackageFactory = class(TInterfacedObject, IPackageFactory)
   private
     procedure ProcessStep(const AProcessor: IPackageAction);
-    procedure Execute;
+    function CanExecute: boolean;
     procedure StartConsole(const APackageName: string);
     procedure EndConsole(const APackageName: string);
+    procedure Execute;
   public
     class function New: IPackageFactory;
   end;
@@ -22,7 +23,7 @@ implementation
 
 uses
   DBuild.Console, DBuild.LibraryPath, DBuild.Package.Metrics, DBuild.Package.Compile, DBuild.Package.Install, DBuild.Config,
-  DBuild.Utils, DBuild.Resources;
+  DBuild.Utils, DBuild.Resources, DBuild.Params;
 
 class function TPackageFactory.New: IPackageFactory;
 begin
@@ -44,6 +45,11 @@ end;
 procedure TPackageFactory.StartConsole(const APackageName: string);
 begin
   TConsole.Output(RPad(sStartPackage, [APackageName], TConsole.LINE_LEN + 1, '*'), Normal);
+end;
+
+function TPackageFactory.CanExecute: boolean;
+begin
+  Result := TDBuildParams.Install or TDBuildParams.Metrics or TDBuildParams.Build;
 end;
 
 procedure TPackageFactory.EndConsole(const APackageName: string);

@@ -1,7 +1,7 @@
 --- 
 compile: 
-  action: "Build"
-  config: "Build"
+  action: "build"
+  config: "debug"
   bpl_output: "$(WORKSPACE)/bin/bpl"
   dcp_output: "$(WORKSPACE)/bin/output/dcp"
   dcu_output: "$(WORKSPACE)/bin/output/dcu"

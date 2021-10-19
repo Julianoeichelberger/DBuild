@@ -24,8 +24,8 @@ type
 implementation
 
 Uses
-  Vcl.Forms, Registry, Windows, SysUtils, DateUtils, IOUtils, ShellAPI, DBuild.Utils, DBuild.Console,
-  DBuild.Config, DBuild.Params, DBuild.Path, DBuild.Resources;
+  Vcl.Forms, Registry, Windows, SysUtils, DateUtils, IOUtils, ShellAPI, DBuild.ShellExecute, DBuild.Console,
+  DBuild.Utils, DBuild.Config, DBuild.Params, DBuild.Path, DBuild.Resources;
 
 { TPackageCompile }
 
@@ -64,13 +64,15 @@ begin
   Status := TBuildStatus.Unknown;
   LogFile := TStringList.Create;
   try
-    FileName := IncludeTrailingPathDelimiter(
-      TDBUildPath.New.Format(TConfig.Instance.Compiler.LogOutput)) + FPackage.Name + '.log';
+    FileName :=
+      TDBuildPath.New.ReplaceEnvToValues(TConfig.Instance.Compiler.LogOutput) + FPackage.Name + '.log';
     if TFile.Exists(FileName) then
     begin
       LogFile.LoadFromFile(FileName);
       Status := TStatistic.EndPackage(FPackage, LogFile.Text);
-    end;
+    end
+    else
+      TConsole.ErrorFmt('Log file %s not found!', [FileName]);
   finally
     LogFile.Free;
   end;
@@ -101,10 +103,10 @@ end;
 function TPackageCompile.CreateDefaultBatFile: string;
 const
   CMD =
-    '%s\MSBuild.exe "%s" ' +
-    ' /t:%s /p:platform=%s /p:config=%s ' +
-    ' /p:DCC_BPLOutput="%s" /p:DCC_DCUOutput="%s" /p:DCC_DCPOutput="%s" ' +
-    ' /p:DCC_BuildAllUnits=true /v:Minimal /flp:logfile="%s%s.log" ';
+    '%%FrameworkDir%%\MSBuild.exe' +
+    ' "%s" /t:%s /p:platform=%s /p:config=%s ' +
+    ' /p:DCC_BPLOutput=%s /p:DCC_DCUOutput=%s /p:DCC_DCPOutput=%s ' +
+    ' /p:DCC_BuildAllUnits=true /v:Minimal /flp:logfile=%s%s.log ';
 var
   ExecCommand: string;
   BatFile: TStringList;
@@ -113,20 +115,21 @@ begin
   try
     BatFile.LoadFromFile(Format(sDelphiEnvVariablesCommand, [TConfig.DelphiInstalationPath]));
 
-    ExecCommand := Format(CMD, ['%FrameworkDir%',
-      FPackage.Project,
+    ExecCommand := Format(CMD, [FPackage.Project,
       TConfig.Instance.Compiler.Action,
       TConfig.Instance.Compiler.Plataform,
       TConfig.Instance.Compiler.Config,
-      TConfig.Instance.Compiler.BplOutput,
-      TConfig.Instance.Compiler.DcuOutput,
-      TConfig.Instance.Compiler.DcpOutput,
-      IncludeTrailingPathDelimiter(TDBUildPath.New.Format(TConfig.Instance.Compiler.LogOutput)),
+      TDBuildPath.New.FormatEnvToBatFormat(TConfig.Instance.Compiler.BplOutput),
+      TDBuildPath.New.FormatEnvToBatFormat(TConfig.Instance.Compiler.DcuOutput),
+      TDBuildPath.New.FormatEnvToBatFormat(TConfig.Instance.Compiler.DcpOutput),
+      TDBuildPath.New.ReplaceEnvToValues(TConfig.Instance.Compiler.LogOutput),
       FPackage.Name]);
 
-    BatFile.Add(TDBUildPath.New.FormatEnvToBatFile(ExecCommand));
-    TConsole.Debug('Compile command', BatFile.Text);
-    result := TDBUildPath.New.RootDir + 'execute.bat';
+    TConsole.Debug('Compile command', ExecCommand);
+
+    BatFile.Add(ExecCommand);
+    TConsole.Debug('Compile command file ', BatFile.Text);
+    result := TDBuildPath.New.RootDir + 'execute.bat';
     BatFile.SaveToFile(result);
   finally
     BatFile.Free;

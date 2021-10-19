@@ -42,7 +42,6 @@ resourcestring
   sHeadDelphiVersion = '*        Delphi Version: %s';
   sHeadConfig = '*        Configuration: %s';
   sHeadTarget = '*        Target: %s';
-  sMSBuild = '*        MSBuild: %s';
 
 implementation
 

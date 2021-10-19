@@ -89,7 +89,6 @@ begin
   TConsole.Output(RPad(sHeadDelphiVersion, [TConfig.Instance.Compiler.Version], LINE_LEN, ' ') + '*', Green);
   TConsole.Output(RPad(sHeadConfig, [TConfig.Instance.Compiler.Config], LINE_LEN, ' ') + '*', Green);
   TConsole.Output(RPad(sHeadTarget, [TConfig.Instance.Compiler.Action], LINE_LEN, ' ') + '*', Green);
-  TConsole.Output(RPad(sMSBuild, [TConfig.Instance.Compiler.MSBuild], LINE_LEN, ' ') + '*', Green);
   TConsole.Output(sLine2, Green);
   TConsole.Output(sLine, Green);
   TConsole.Write('');

@@ -24,7 +24,8 @@ type
 implementation
 
 uses
-  IOUtils, Classes, SysUtils, DBuild.Resources, DBuild.Utils, DBuild.Config, DBuild.Console, DBuild.Params, DBuild.Path;
+  IOUtils, Classes, SysUtils, DBuild.Resources, DBuild.ShellExecute, DBuild.Utils, DBuild.Config, DBuild.Console, DBuild.Params,
+  DBuild.Path;
 
 { TPackageMetrics }
 
@@ -44,6 +45,8 @@ end;
 procedure TPackageMetrics.AfterExecute;
 begin
   PrintResult;
+  if TFile.Exists(FFileName) then
+    TFile.Delete(FFileName);
 end;
 
 procedure TPackageMetrics.BeforeExecute;
@@ -83,11 +86,11 @@ begin
   try
     BatFile.Add(Format('cd "%s"', [TConfig.DelphiInstalationPath]));
 
-    ExecCommand := Format(sMetricsCommand, [
-      TConfig.Instance.Metrics.OutputExt, TConfig.Instance.Metrics.OutputPath,
+    ExecCommand := Format(sMetricsCommand, [TConfig.Instance.Metrics.OutputExt,
+      TDBUildPath.New.ReplaceEnvToValues(TConfig.Instance.Metrics.OutputPath),
       FPackage.Name, FPackage.UnitsPaths, FPackage.Project]);
 
-    BatFile.Add(TDBUildPath.New.FormatEnvToBatFile(ExecCommand));
+    BatFile.Add(ExecCommand);
     TConsole.Debug('Metrics command', BatFile.Text);
     Result := TDBUildPath.New.RootDir + 'metrics.bat';
     BatFile.SaveToFile(Result);

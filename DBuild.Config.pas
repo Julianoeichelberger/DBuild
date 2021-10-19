@@ -35,8 +35,9 @@ begin
     Version := FInstance.Compiler.Version;
     FDelphiInstalationPath := TDBUildPath.New.DelphiInstalation(Version);
     FInstance.Compiler.Version := Version;
-    FInstance.Compiler.MSBuild := TDBUildPath.New.MSBuild(FDelphiInstalationPath, FInstance.Compiler.MSBuild);
-    TDirectory.CreateDirectory(TDBUildPath.New.Format(FInstance.Compiler.LogOutput));
+    if FInstance.Compiler.BplOutput.IsEmpty then
+      FInstance.Compiler.BplOutput := FDelphiInstalationPath + '\bin';
+    TDirectory.CreateDirectory(TDBUildPath.New.ReplaceEnvToValues(FInstance.Compiler.LogOutput));
   end;
   result := FInstance;
 end;

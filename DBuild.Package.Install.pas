@@ -27,7 +27,7 @@ implementation
 { TPackageInstall }
 
 uses
-  DBuild.Console, DBuild.Params, DBuild.Resources;
+  DBuild.Console, DBuild.Params, DBuild.Resources, DBuild.Path;
 
 constructor TPackageInstall.Create(APackage: TPackage);
 begin
@@ -57,8 +57,8 @@ begin
     On E: Exception do
       TConsole.ErrorFmt('Error on open windows registry [%s]', [E.message]);
   end;
-  FFileName := Format('%s%s.bpl', [
-    IncludeTrailingPathDelimiter(TConfig.Instance.Compiler.BplOutput), FPackage.Name]);
+  FFileName := Format('%s%s.bpl', [TDBUildPath.New.ReplaceEnvToValues(
+    IncludeTrailingPathDelimiter(TConfig.Instance.Compiler.BplOutput)), FPackage.Name]);
 end;
 
 function TPackageInstall.CanExecute: Boolean;

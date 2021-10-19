@@ -27,9 +27,6 @@ begin
 
   if TConfig.Instance = nil then
     raise EDBuildException.Create(format(sInvalidConfigFile, [TDBuildParams.ConfigFileName]));
-
-  if not TFile.Exists(TConfig.Instance.Compiler.MSBuild) then
-    raise EDBuildException.Create(sMSBuildNotFound);
 end;
 
 class procedure TDBuild.Execute;
@@ -37,9 +34,12 @@ begin
   try
     try
       TDBuild.Validate;
-      TConsole.Banner;
-      TPackageFactory.New.Execute;
-      TConsole.PrintResult;
+      if TPackageFactory.New.CanExecute then
+      begin
+        TConsole.Banner;
+        TPackageFactory.New.Execute;
+        TConsole.PrintResult;
+      end;
     except
       on E: Exception do
       begin
