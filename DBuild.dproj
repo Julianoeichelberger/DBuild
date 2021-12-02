@@ -18,11 +18,6 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
@@ -75,12 +70,6 @@
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;dxBarRS26;vclFireDAC;dxPScxExtCommonRS26;emsclientfiredac;DataSnapFireDAC;tethering;FireDACADSDriver;DBXMSSQLDriver;dxPSdxSpreadSheetLnkRS26;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;dxPScxVGridLnkRS26;vcltouch;vcldb;bindcompfmx;DBXOracleDriver;inetdb;FmxTeeUI;emsedge;dxGDIPlusRS26;FireDACIBDriver;fmx;fmxdae;dxServerModeRS26;dxPSLnksRS26;FireDACDBXDriver;dbexpress;IndyCore;cxGridRS26;dxComnRS26;xdata;vclx;dxPsPrVwAdvRS26;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;soapserver;cxVerticalGridRS26;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;CloudService;FireDACMySQLDriver;DBXFirebirdDriver;dxPSdxLCLnkRS26;dxmdsRS26;FireDACCommonODBC;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;cxPivotGridRS26;tmsbcl;IndySystem;sparkle;FireDACDb2Driver;dsnapcon;dxPScxPivotGridLnkRS26;cxTreeListRS26;dxPScxPCProdRS26;dxPSCoreRS26;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;dxCoreRS26;TeeDB;FireDAC;cxExportRS26;dxSpreadSheetRS26;emshosting;dxPSPrVwRibbonRS26;tmsdXE12;FireDACSqliteDriver;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxPivotGridChartRS26;soaprtl;DbxCommonDriver;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;emsserverresource;DbxClientDriver;tmsexdXE12;DBXSybaseASADriver;cxLibraryRS26;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;TMSLoggingPkgVCLDXE12;IndyIPClient;bindcompvcl;TMSLoggingPkgCoreDXE12;TeeUI;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dxPScxCommonRS26;aurelius;dxSpreadSheetCoreDialogsRS26;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;dxPScxGridLnkRS26;dxSpreadSheetCoreRS26;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -114,22 +103,22 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="DBuild.Params.pas"/>
-        <DCCReference Include="DBuild.Console.pas"/>
-        <DCCReference Include="DBuild.Config.pas"/>
-        <DCCReference Include="DBuild.Config.Classes.pas"/>
-        <DCCReference Include="DBuild.Package.Install.pas"/>
-        <DCCReference Include="DBuild.Package.Compile.pas"/>
-        <DCCReference Include="DBuild.Package.Factory.pas"/>
-        <DCCReference Include="DBuild.Package.Metrics.pas"/>
-        <DCCReference Include="DBuild.Utils.pas"/>
-        <DCCReference Include="DBuild.LibraryPath.pas"/>
-        <DCCReference Include="DBuild.Framework.pas"/>
-        <DCCReference Include="DBuild.Interfaces.pas"/>
-        <DCCReference Include="DBuild.Resources.pas"/>
-        <DCCReference Include="DBuild.Path.pas"/>
-        <DCCReference Include="DBuild.Statistics.pas"/>
-        <DCCReference Include="DBuild.ShellExecute.pas"/>
+        <DCCReference Include="src\DBuild.Params.pas"/>
+        <DCCReference Include="src\DBuild.Console.pas"/>
+        <DCCReference Include="src\DBuild.Config.pas"/>
+        <DCCReference Include="src\DBuild.Config.Classes.pas"/>
+        <DCCReference Include="src\DBuild.Package.Install.pas"/>
+        <DCCReference Include="src\DBuild.Package.Compile.pas"/>
+        <DCCReference Include="src\DBuild.Package.Factory.pas"/>
+        <DCCReference Include="src\DBuild.Package.Metrics.pas"/>
+        <DCCReference Include="src\DBuild.Utils.pas"/>
+        <DCCReference Include="src\DBuild.LibraryPath.pas"/>
+        <DCCReference Include="src\DBuild.Framework.pas"/>
+        <DCCReference Include="src\DBuild.Interfaces.pas"/>
+        <DCCReference Include="src\DBuild.Resources.pas"/>
+        <DCCReference Include="src\DBuild.Path.pas"/>
+        <DCCReference Include="src\DBuild.Statistics.pas"/>
+        <DCCReference Include="src\DBuild.ShellExecute.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -1231,7 +1220,6 @@
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
